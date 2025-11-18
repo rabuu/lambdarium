@@ -1,21 +1,23 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Term {
-    Var(Variable),
-    App(Application),
-    Abs(Abstraction),
+pub enum Term<'src> {
+    Var(Variable<'src>),
+    App(Application<'src>),
+    Abs(Abstraction<'src>),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Variable(pub char);
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Application {
-    pub first: Box<Term>,
-    pub second: Box<Term>,
+pub struct Variable<'src> {
+    pub inner: &'src str,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Abstraction {
-    pub binder: Variable,
-    pub body: Box<Term>,
+pub struct Application<'src> {
+    pub first: Box<Term<'src>>,
+    pub second: Box<Term<'src>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Abstraction<'src> {
+    pub binder: Variable<'src>,
+    pub body: Box<Term<'src>>,
 }
