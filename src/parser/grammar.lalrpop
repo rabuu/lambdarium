@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::ast;
 use crate::parser::lexer::{LexerError, Token};
 
@@ -35,4 +37,4 @@ App: ast::Application<'src> = <first: AppTerm> <second: SimpleTerm> => ast::Appl
 
 Var: ast::Variable<'src> = "variable" => ast::Variable { inner: <> };
 
-Abs: ast::Abstraction<'src> = "lambda" <binder: Var> "." <body: Term> => ast::Abstraction { binder, body: Box::new(body) };
+Abs: ast::Abstraction<'src> = "lambda" <binders: Var+> "." <body: Term> => ast::Abstraction::from_uncurried(VecDeque::from(binders), body);

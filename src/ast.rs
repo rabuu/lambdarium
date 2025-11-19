@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Term<'src> {
     Var(Variable<'src>),
@@ -20,4 +22,25 @@ pub struct Application<'src> {
 pub struct Abstraction<'src> {
     pub binder: Variable<'src>,
     pub body: Box<Term<'src>>,
+}
+
+impl<'src> Abstraction<'src> {
+    pub fn from_uncurried(
+        mut binders: VecDeque<Variable<'src>>,
+        body: Term<'src>,
+    ) -> Abstraction<'src> {
+        assert!(!binders.is_empty());
+
+        if binders.len() == 1 {
+            return Self {
+                binder: binders[0],
+                body: Box::new(body),
+            };
+        }
+
+        Self {
+            binder: binders.pop_front().unwrap(),
+            body: Box::new(Term::Abs(Abstraction::from_uncurried(binders, body))),
+        }
+    }
 }
