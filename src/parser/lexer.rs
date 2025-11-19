@@ -1,9 +1,18 @@
 use std::fmt;
 
-use logos::Logos;
+use logos::{Logos, SpannedIter};
+
+pub type Spanned<Tok, Loc, Error> = Result<(Loc, Tok, Loc), Error>;
+
+#[derive(Debug, Default, Clone, PartialEq)]
+pub enum LexerError {
+    #[default]
+    InvalidToken,
+}
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r#"\s*"#)]
+#[logos(error = LexerError)]
 pub enum Token<'src> {
     #[token("(")]
     ParenOpen,
@@ -32,5 +41,27 @@ impl fmt::Display for Token<'_> {
             Token::Dot => write!(f, r#"".""#),
             Token::Variable(var) => write!(f, "{var}"),
         }
+    }
+}
+
+pub struct Lexer<'src> {
+    tokens: SpannedIter<'src, Token<'src>>,
+}
+
+impl<'src> Lexer<'src> {
+    pub fn new(source: &'src str) -> Self {
+        Self {
+            tokens: Token::lexer(source).spanned(),
+        }
+    }
+}
+
+impl<'src> Iterator for Lexer<'src> {
+    type Item = Spanned<Token<'src>, usize, LexerError>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.tokens
+            .next()
+            .map(|(token, span)| Ok((span.start, token?, span.end)))
     }
 }

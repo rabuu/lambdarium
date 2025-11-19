@@ -2,10 +2,14 @@ use lalrpop_util::lalrpop_mod;
 
 use crate::ast;
 
+use lexer::Lexer;
+
 mod lexer;
 
-pub fn parse(source: &str) -> Option<ast::Term> {
-    todo!()
+pub fn parse<'src>(source: &'src str) -> Option<ast::Term<'src>> {
+    let mut lexer = Lexer::new(source);
+    let parser = grammar::VarParser::new();
+    parser.parse(&mut lexer).ok()
 }
 
 lalrpop_mod!(

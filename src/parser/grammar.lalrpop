@@ -1,9 +1,23 @@
-use std::str::FromStr;
+use crate::ast;
+use crate::parser::lexer::{Lexer, LexerError, Token};
 
-grammar;
+grammar<'src>();
 
-pub Term: i32 = {
-	<n:Num> => n,
+extern {
+	type Location = usize;
+	type Error = LexerError;
+
+	enum Token<'src> {
+	    "(" => Token::ParenOpen,
+	    ")" => Token::ParenClose,
+	    "\\" => Token::Lambda,
+	    "." => Token::Dot,
+	    "variable" => Token::Variable(<&'src str>),
+	}
+}
+
+Variable: ast::Variable<'src> = "variable" => ast::Variable { inner: <> };
+
+pub Var: ast::Term<'src> = {
+	Variable => ast::Term::Var(<>),
 };
-
-Num: i32 = <s:r"[0-9]+"> => i32::from_str(s).unwrap();
