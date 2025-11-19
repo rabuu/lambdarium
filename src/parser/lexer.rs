@@ -27,7 +27,7 @@ pub enum Token<'src> {
     #[token(".")]
     Dot,
 
-    #[regex(r#""[a-zA-Z]+""#)]
+    #[regex(r#""[a-zA-Z]+""#, |lex| strip_quotes(lex.slice()))]
     #[regex(r#"[a-zA-Z]"#)]
     Variable(&'src str),
 }
@@ -64,4 +64,9 @@ impl<'src> Iterator for Lexer<'src> {
             .next()
             .map(|(token, span)| Ok((span.start, token?, span.end)))
     }
+}
+
+fn strip_quotes(s: &str) -> &str {
+    let len = s.len();
+    &s[1..len - 1]
 }
