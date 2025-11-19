@@ -2,7 +2,7 @@ use lalrpop_util::lalrpop_mod;
 
 use crate::ast;
 
-mod token;
+mod lexer;
 
 pub fn parse(source: &str) -> Option<ast::Term> {
     todo!()
