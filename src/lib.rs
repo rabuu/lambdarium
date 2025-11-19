@@ -3,6 +3,7 @@ use std::collections::VecDeque;
 pub use parser::parse_term;
 
 mod display;
+mod free_variables;
 mod length;
 mod parser;
 
@@ -13,9 +14,15 @@ pub enum Term<'src> {
     Abs(Abstraction<'src>),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Variable<'src> {
     pub inner: &'src str,
+}
+
+impl<'src> From<&'src str> for Variable<'src> {
+    fn from(value: &'src str) -> Self {
+        Self { inner: value }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
