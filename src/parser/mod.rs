@@ -8,7 +8,7 @@ mod lexer;
 
 pub fn parse<'src>(source: &'src str) -> Option<ast::Term<'src>> {
     let mut lexer = Lexer::new(source);
-    let parser = grammar::VarParser::new();
+    let parser = grammar::TermParser::new();
     parser.parse(&mut lexer).ok()
 }
 
