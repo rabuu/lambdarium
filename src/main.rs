@@ -1,6 +1,7 @@
 use std::io::{self, BufRead};
 
 mod ast;
+mod display;
 mod parser;
 
 fn main() {
@@ -13,6 +14,6 @@ fn main() {
             continue;
         };
 
-        println!("{term:?}");
+        println!("{term}");
     }
 }
