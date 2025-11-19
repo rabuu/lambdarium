@@ -3,6 +3,7 @@ use std::collections::VecDeque;
 pub use parser::parse_term;
 
 mod display;
+mod length;
 mod parser;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
