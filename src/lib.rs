@@ -1,5 +1,10 @@
 use std::collections::VecDeque;
 
+pub use parser::parse_term;
+
+mod display;
+mod parser;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Term<'src> {
     Var(Variable<'src>),

@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::ast;
+use crate::{Term, Variable, Abstraction, Application};
 use crate::parser::lexer::{LexerError, Token};
 
 grammar<'src>();
@@ -18,23 +18,23 @@ extern {
 	}
 }
 
-pub Term: ast::Term<'src> = {
-	Abs => ast::Term::Abs(<>),
+pub Term: Term<'src> = {
+	Abs => Term::Abs(<>),
 	AppTerm,
 };
 
-AppTerm: ast::Term<'src> = {
+AppTerm: Term<'src> = {
 	SimpleTerm,
-	App => ast::Term::App(<>),
+	App => Term::App(<>),
 };
 
-SimpleTerm: ast::Term<'src> = {
-	Var => ast::Term::Var(<>),
+SimpleTerm: Term<'src> = {
+	Var => Term::Var(<>),
 	"(" <Term> ")",
 };
 
-App: ast::Application<'src> = <first: AppTerm> <second: SimpleTerm> => ast::Application { first: Box::new(first), second: Box::new(second) };
+App: Application<'src> = <first: AppTerm> <second: SimpleTerm> => Application { first: Box::new(first), second: Box::new(second) };
 
-Var: ast::Variable<'src> = "variable" => ast::Variable { inner: <> };
+Var: Variable<'src> = "variable" => Variable { inner: <> };
 
-Abs: ast::Abstraction<'src> = "lambda" <binders: Var+> "." <body: Term> => ast::Abstraction::from_uncurried(VecDeque::from(binders), body);
+Abs: Abstraction<'src> = "lambda" <binders: Var+> "." <body: Term> => Abstraction::from_uncurried(VecDeque::from(binders), body);
