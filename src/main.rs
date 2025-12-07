@@ -5,11 +5,15 @@ fn main() {
     for line in stdin.lock().lines() {
         let line = line.unwrap();
 
-        let Some(term) = lambda_calculator::parse_term(&line) else {
+        let Some(mut term) = lambda_calculator::parse_term(&line) else {
             eprintln!("Oops, try again!");
             continue;
         };
 
-        println!("{term}");
+        println!("TERM: {term}");
+        while let Some(reduced) = term.beta_contract() {
+            term = reduced;
+            eprintln!("{term}");
+        }
     }
 }

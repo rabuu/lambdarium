@@ -3,6 +3,7 @@ use std::collections::VecDeque;
 pub use parser::parse_term;
 
 mod alpha;
+mod beta;
 mod display;
 mod free_variables;
 mod length;
