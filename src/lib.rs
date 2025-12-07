@@ -66,10 +66,10 @@ impl Abstraction {
         assert!(!binders.is_empty());
 
         if binders.len() == 1 {
-            return Self {
+            Self {
                 binder: binders[0].clone(),
                 body: Box::new(body),
-            };
+            }
         } else {
             Self {
                 binder: binders.pop_front().unwrap(),
