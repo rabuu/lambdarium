@@ -2,16 +2,13 @@ use std::collections::HashSet;
 
 use crate::{Abstraction, Application, Term, Variable};
 
-impl<'src> Term<'src> {
-    pub fn free_variables(&self) -> HashSet<Variable<'src>> {
+impl Term {
+    pub fn free_variables(&self) -> HashSet<Variable> {
         let mut env = HashSet::new();
         self.free_variables_with_env(&mut env)
     }
 
-    fn free_variables_with_env(
-        &self,
-        env: &mut HashSet<Variable<'src>>,
-    ) -> HashSet<Variable<'src>> {
+    fn free_variables_with_env(&self, env: &mut HashSet<Variable>) -> HashSet<Variable> {
         match self {
             Term::Var(x) => x.free_variables_with_env(env),
             Term::Abs(x) => x.free_variables_with_env(env),
@@ -19,7 +16,7 @@ impl<'src> Term<'src> {
         }
     }
 
-    pub fn contains_free_variable(&self, var: &Variable<'src>) -> bool {
+    pub fn contains_free_variable(&self, var: &Variable) -> bool {
         match self {
             Term::Var(x) => var == x,
             Term::Abs(x) => x.contains_free_variable(var),
@@ -28,44 +25,35 @@ impl<'src> Term<'src> {
     }
 }
 
-impl<'src> Variable<'src> {
-    fn free_variables_with_env(
-        &self,
-        env: &mut HashSet<Variable<'src>>,
-    ) -> HashSet<Variable<'src>> {
+impl Variable {
+    fn free_variables_with_env(&self, env: &mut HashSet<Variable>) -> HashSet<Variable> {
         if env.contains(self) {
             HashSet::new()
         } else {
-            HashSet::from([*self])
+            HashSet::from([self.clone()])
         }
     }
 }
 
-impl<'src> Abstraction<'src> {
-    fn free_variables_with_env(
-        &self,
-        env: &mut HashSet<Variable<'src>>,
-    ) -> HashSet<Variable<'src>> {
-        env.insert(self.binder);
+impl Abstraction {
+    fn free_variables_with_env(&self, env: &mut HashSet<Variable>) -> HashSet<Variable> {
+        env.insert(self.binder.clone());
         self.body.free_variables_with_env(env)
     }
 
-    fn contains_free_variable(&self, var: &Variable<'src>) -> bool {
+    fn contains_free_variable(&self, var: &Variable) -> bool {
         *var != self.binder && self.body.contains_free_variable(var)
     }
 }
 
-impl<'src> Application<'src> {
-    fn free_variables_with_env(
-        &self,
-        env: &mut HashSet<Variable<'src>>,
-    ) -> HashSet<Variable<'src>> {
+impl Application {
+    fn free_variables_with_env(&self, env: &mut HashSet<Variable>) -> HashSet<Variable> {
         let first = self.first.free_variables_with_env(env);
         let second = self.second.free_variables_with_env(env);
         [first, second].into_iter().flatten().collect()
     }
 
-    fn contains_free_variable(&self, var: &Variable<'src>) -> bool {
+    fn contains_free_variable(&self, var: &Variable) -> bool {
         self.first.contains_free_variable(var) || self.second.contains_free_variable(var)
     }
 }

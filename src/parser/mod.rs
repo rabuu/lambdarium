@@ -6,7 +6,7 @@ use lexer::Lexer;
 
 mod lexer;
 
-pub fn parse_term<'src>(source: &'src str) -> Option<Term<'src>> {
+pub fn parse_term(source: &str) -> Option<Term> {
     let mut lexer = Lexer::new(source);
     let parser = grammar::TermParser::new();
     parser.parse(&mut lexer).ok()

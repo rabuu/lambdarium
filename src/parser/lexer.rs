@@ -13,7 +13,7 @@ pub enum LexerError {
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r#"\s*"#)]
 #[logos(error = LexerError)]
-pub enum Token<'src> {
+pub enum Token {
     #[token("(")]
     ParenOpen,
 
@@ -27,12 +27,12 @@ pub enum Token<'src> {
     #[token(".")]
     Dot,
 
-    #[regex(r#""[a-zA-Z]+""#, |lex| strip_quotes(lex.slice()))]
-    #[regex(r#"[a-zA-Z]"#)]
-    Variable(&'src str),
+    #[regex(r#""[a-zA-Z]+""#, |lex| strip_quotes(lex.slice()).to_owned())]
+    #[regex(r#"[a-zA-Z]"#, |lex| lex.slice().to_owned())]
+    Variable(String),
 }
 
-impl fmt::Display for Token<'_> {
+impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Token::ParenOpen => write!(f, r#""(""#),
@@ -45,7 +45,7 @@ impl fmt::Display for Token<'_> {
 }
 
 pub struct Lexer<'src> {
-    tokens: SpannedIter<'src, Token<'src>>,
+    tokens: SpannedIter<'src, Token>,
 }
 
 impl<'src> Lexer<'src> {
@@ -56,8 +56,8 @@ impl<'src> Lexer<'src> {
     }
 }
 
-impl<'src> Iterator for Lexer<'src> {
-    type Item = Spanned<Token<'src>, usize, LexerError>;
+impl Iterator for Lexer<'_> {
+    type Item = Spanned<Token, usize, LexerError>;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.tokens

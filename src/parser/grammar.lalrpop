@@ -3,38 +3,38 @@ use std::collections::VecDeque;
 use crate::{Term, Variable, Abstraction, Application};
 use crate::parser::lexer::{LexerError, Token};
 
-grammar<'src>();
+grammar();
 
 extern {
 	type Location = usize;
 	type Error = LexerError;
 
-	enum Token<'src> {
+	enum Token {
 	    "(" => Token::ParenOpen,
 	    ")" => Token::ParenClose,
 	    "lambda" => Token::Lambda,
 	    "." => Token::Dot,
-	    "variable" => Token::Variable(<&'src str>),
+	    "variable" => Token::Variable(<String>),
 	}
 }
 
-pub Term: Term<'src> = {
+pub Term: Term = {
 	Abs => Term::Abs(<>),
 	AppTerm,
 };
 
-AppTerm: Term<'src> = {
+AppTerm: Term = {
 	SimpleTerm,
 	App => Term::App(<>),
 };
 
-SimpleTerm: Term<'src> = {
+SimpleTerm: Term = {
 	Var => Term::Var(<>),
 	"(" <Term> ")",
 };
 
-App: Application<'src> = <first: AppTerm> <second: SimpleTerm> => Application { first: Box::new(first), second: Box::new(second) };
+App: Application = <first: AppTerm> <second: SimpleTerm> => Application { first: Box::new(first), second: Box::new(second) };
 
-Var: Variable<'src> = "variable" => Variable { inner: <> };
+Var: Variable = "variable" => Variable { inner: <> };
 
-Abs: Abstraction<'src> = "lambda" <binders: Var+> "." <body: Term> => Abstraction::from_uncurried(VecDeque::from(binders), body);
+Abs: Abstraction = "lambda" <binders: Var+> "." <body: Term> => Abstraction::from_uncurried(VecDeque::from(binders), body);

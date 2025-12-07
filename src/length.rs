@@ -1,6 +1,6 @@
 use crate::{Abstraction, Application, Term, Variable};
 
-impl Term<'_> {
+impl Term {
     pub fn length(&self) -> usize {
         match self {
             Term::Var(x) => x.length(),
@@ -10,19 +10,19 @@ impl Term<'_> {
     }
 }
 
-impl Variable<'_> {
+impl Variable {
     pub fn length(&self) -> usize {
         1
     }
 }
 
-impl Abstraction<'_> {
+impl Abstraction {
     pub fn length(&self) -> usize {
         self.binder.length() + self.body.length()
     }
 }
 
-impl Application<'_> {
+impl Application {
     pub fn length(&self) -> usize {
         self.first.length() + self.second.length()
     }
