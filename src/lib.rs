@@ -6,6 +6,7 @@ mod display;
 mod free_variables;
 mod length;
 mod parser;
+mod substitution;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Term {
