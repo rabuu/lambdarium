@@ -60,10 +60,9 @@ impl<'src> Application<'src> {
         &self,
         env: &mut HashSet<Variable<'src>>,
     ) -> HashSet<Variable<'src>> {
-        let mut first = self.first.free_variables_with_env(env);
+        let first = self.first.free_variables_with_env(env);
         let second = self.second.free_variables_with_env(env);
-        first.extend(second.into_iter());
-        first
+        [first, second].into_iter().flatten().collect()
     }
 
     fn contains_free_variable(&self, var: &Variable<'src>) -> bool {

@@ -25,10 +25,22 @@ impl<'src> From<&'src str> for Variable<'src> {
     }
 }
 
+impl<'src> From<Variable<'src>> for Term<'src> {
+    fn from(value: Variable<'src>) -> Self {
+        Self::Var(value)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Application<'src> {
     pub first: Box<Term<'src>>,
     pub second: Box<Term<'src>>,
+}
+
+impl<'src> From<Application<'src>> for Term<'src> {
+    fn from(value: Application<'src>) -> Self {
+        Self::App(value)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -38,6 +50,10 @@ pub struct Abstraction<'src> {
 }
 
 impl<'src> Abstraction<'src> {
+    /// \xyz.e -> \x.\y.\z.e
+    ///
+    /// # Preconditions
+    /// Panics when `binders` is empty.
     pub fn from_uncurried(
         mut binders: VecDeque<Variable<'src>>,
         body: Term<'src>,
@@ -55,5 +71,11 @@ impl<'src> Abstraction<'src> {
             binder: binders.pop_front().unwrap(),
             body: Box::new(Term::Abs(Abstraction::from_uncurried(binders, body))),
         }
+    }
+}
+
+impl<'src> From<Abstraction<'src>> for Term<'src> {
+    fn from(value: Abstraction<'src>) -> Self {
+        Self::Abs(value)
     }
 }
