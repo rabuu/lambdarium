@@ -134,7 +134,8 @@ fn main() -> io::Result<()> {
             continue;
         };
 
-        println!("What do you want to do with the term?");
+        println!("Term: {term}");
+
         let action = match TermAction::select("Action:").prompt() {
             Ok(action) => action,
             Err(_) => return Ok(()),
