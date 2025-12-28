@@ -1,6 +1,6 @@
 use lalrpop_util::lalrpop_mod;
 
-use crate::Term;
+use crate::{Let, Program, Term};
 
 use lexer::Lexer;
 
@@ -14,9 +14,22 @@ impl Term {
     }
 }
 
+impl Program {
+    pub fn parse<S: AsRef<str>>(source: S) -> Option<Self> {
+        let mut lexer = Lexer::new(source.as_ref());
+        let parser = grammar::ProgramParser::new();
+        parser.parse(&mut lexer).ok()
+    }
+}
+
 lalrpop_mod!(
     #[allow(clippy::ptr_arg)]
     #[rustfmt::skip]
     grammar,
     "/parser/grammar.rs"
 );
+
+enum ProgramElement {
+    Let(Let),
+    Term(Term),
+}

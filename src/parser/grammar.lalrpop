@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 
-use crate::{Term, Variable, Abstraction, Application};
+use crate::{Term, Variable, Abstraction, Application, Program, Let, MetaVariable};
+use crate::parser::ProgramElement;
 use crate::parser::lexer::{LexerError, Token};
 
 grammar();
@@ -15,8 +16,16 @@ extern {
 	    "lambda" => Token::Lambda,
 	    "." => Token::Dot,
 	    "variable" => Token::Variable(<String>),
+		"let" => Token::Let,
+		"metavariable" => Token::MetaVariable(<String>),
+		"=" => Token::Equals,
+		";" => Token::Semicolon,
 	}
 }
+
+//
+// Core λ-calculus
+//
 
 pub Term: Term = {
 	Abs => Term::Abs(<>),
@@ -38,3 +47,29 @@ App: Application = <lhs: AppTerm> <rhs: SimpleTerm> => Application { lhs: Box::n
 Var: Variable = "variable" => Variable { inner: <> };
 
 Abs: Abstraction = "lambda" <binders: Var+> "." <body: Term> => Abstraction::from_uncurried(VecDeque::from(binders), body);
+
+//
+// Meta-language
+//
+
+pub Program: Program = <elements: (<ProgramElement> ";")*> <last: ProgramElement?> => {
+	let mut lets = Vec::new();
+	let mut terms = Vec::new();
+	for element in elements.into_iter().map(Some).chain(std::iter::once(last)).flatten() {
+		match element {
+			ProgramElement::Let(l) => lets.push(l),
+			ProgramElement::Term(t) => terms.push(t),
+		}
+	}
+
+	Program { lets, terms }
+};
+
+ProgramElement: ProgramElement = {
+	Let => ProgramElement::Let(<>),
+	Term => ProgramElement::Term(<>),
+};
+
+MetaVar: MetaVariable = "metavariable" => MetaVariable { inner: <> };
+
+Let: Let = "let" <metavar: MetaVar> "=" <body: Term> => Let { metavar, body };

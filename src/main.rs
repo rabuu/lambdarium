@@ -129,6 +129,11 @@ fn main() -> io::Result<()> {
             Signal::CtrlC | Signal::CtrlD => return Ok(()),
         };
 
+        if let Some(program) = lambda_calculator::Program::parse(&line) {
+            dbg!(program);
+            continue;
+        }
+
         let Some(term) = lambda_calculator::Term::parse(line) else {
             eprintln!("Invalid {LAMBDA}-term.");
             continue;

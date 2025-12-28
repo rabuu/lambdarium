@@ -32,6 +32,18 @@ pub enum Token {
     #[regex(r#""[a-zA-Z]+""#, |lex| strip_quotes(lex.slice()).to_owned())]
     #[regex(r#"[a-zA-Z]"#, |lex| lex.slice().to_owned())]
     Variable(String),
+
+    #[token("let")]
+    Let,
+
+    #[regex(r#"<[a-zA-Z0-9_]+>"#, |lex| strip_quotes(lex.slice()).to_owned())]
+    MetaVariable(String),
+
+    #[token("=")]
+    Equals,
+
+    #[token(";")]
+    Semicolon,
 }
 
 impl fmt::Display for Token {
@@ -42,6 +54,10 @@ impl fmt::Display for Token {
             Token::Lambda => write!(f, r#""{LAMBDA}""#),
             Token::Dot => write!(f, r#"".""#),
             Token::Variable(var) => write!(f, "{var}"),
+            Token::Let => write!(f, r#""let""#),
+            Token::MetaVariable(var) => write!(f, r#"<{var}>"#),
+            Token::Equals => write!(f, r#""=""#),
+            Token::Semicolon => write!(f, r#"";""#),
         }
     }
 }
