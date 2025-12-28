@@ -1,6 +1,9 @@
 use std::{borrow::Cow, io};
 
-use reedline::{Prompt, Reedline, Signal};
+use reedline::{
+    EditCommand, Emacs, KeyCode, KeyModifiers, Prompt, Reedline, ReedlineEvent, Signal,
+    default_emacs_keybindings,
+};
 
 use lambda_calculator::LAMBDA;
 
@@ -35,10 +38,20 @@ impl Prompt for MainPrompt {
 }
 
 fn main() -> io::Result<()> {
-    let mut line_editor = Reedline::create();
+    let edit_mode = {
+        let mut keybindings = default_emacs_keybindings();
+        keybindings.add_binding(
+            KeyModifiers::empty(),
+            KeyCode::Char('\\'),
+            ReedlineEvent::Edit(vec![EditCommand::InsertChar(LAMBDA)]),
+        );
+
+        Box::new(Emacs::new(keybindings))
+    };
+
+    let mut line_editor = Reedline::create().with_edit_mode(edit_mode);
 
     let mut first = Some(());
-
     loop {
         if first.take().is_none() {
             println!();
