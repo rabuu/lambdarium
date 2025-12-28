@@ -2,8 +2,6 @@ use std::fmt;
 
 use logos::{Logos, SpannedIter};
 
-use crate::LAMBDA;
-
 pub type Spanned<Tok, Loc, Error> = Result<(Loc, Tok, Loc), Error>;
 
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -51,7 +49,7 @@ impl fmt::Display for Token {
         match self {
             Token::ParenOpen => write!(f, r#""(""#),
             Token::ParenClose => write!(f, r#"")""#),
-            Token::Lambda => write!(f, r#""{LAMBDA}""#),
+            Token::Lambda => write!(f, r#""λ""#),
             Token::Dot => write!(f, r#"".""#),
             Token::Variable(var) => write!(f, "{var}"),
             Token::Let => write!(f, r#""let""#),

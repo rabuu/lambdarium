@@ -8,7 +8,7 @@ use reedline::{
     Signal, StyledText, ValidationResult, Validator, default_emacs_keybindings,
 };
 
-use lambda_calculator::{BETA, LAMBDA};
+const PROMPT: &str = "λ-calculator";
 
 const COLOR_LAMBDA: Color = Color::Purple;
 const COLOR_PUNCTUATION: Color = Color::DarkGray;
@@ -16,7 +16,7 @@ const COLOR_PUNCTUATION: Color = Color::DarkGray;
 struct MainPrompt;
 impl Prompt for MainPrompt {
     fn render_prompt_left(&self) -> std::borrow::Cow<'_, str> {
-        Cow::Owned(format!("{LAMBDA}-calculator"))
+        Cow::Owned(String::from(PROMPT))
     }
 
     fn render_prompt_right(&self) -> std::borrow::Cow<'_, str> {
@@ -50,7 +50,7 @@ impl Highlighter for TermHighlighter {
 
         for c in line.chars() {
             let style = match c {
-                LAMBDA | '\\' => Style::new().bold().fg(COLOR_LAMBDA),
+                'λ' | '\\' => Style::new().bold().fg(COLOR_LAMBDA),
                 '.' | '(' | ')' => Style::new().fg(COLOR_PUNCTUATION),
                 _ => Style::new(),
             };
@@ -95,7 +95,7 @@ enum TermAction {
 impl fmt::Display for TermAction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            TermAction::BetaContraction => write!(f, "{BETA}-contract"),
+            TermAction::BetaContraction => write!(f, "β-contract"),
             TermAction::TypeInference => write!(f, "Infer type (in STLC)"),
         }
     }
@@ -107,7 +107,7 @@ fn main() -> io::Result<()> {
         keybindings.add_binding(
             KeyModifiers::empty(),
             KeyCode::Char('\\'),
-            ReedlineEvent::Edit(vec![EditCommand::InsertChar(LAMBDA)]),
+            ReedlineEvent::Edit(vec![EditCommand::InsertChar('λ')]),
         );
 
         Emacs::new(keybindings)
@@ -135,7 +135,7 @@ fn main() -> io::Result<()> {
         }
 
         let Some(term) = lambda_calculator::Term::parse(line) else {
-            eprintln!("Invalid {LAMBDA}-term.");
+            eprintln!("Invalid λ-term.");
             continue;
         };
 
@@ -172,7 +172,7 @@ fn main() -> io::Result<()> {
                     println!("{term}");
                 }
 
-                println!("The term is in {BETA} normal form.");
+                println!("The term is in β normal form.");
             }
         }
     }

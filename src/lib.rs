@@ -9,9 +9,6 @@ mod parser;
 mod stlc;
 mod substitution;
 
-pub const LAMBDA: char = 'λ';
-pub const BETA: char = 'β';
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Term {
     Var(Variable),
