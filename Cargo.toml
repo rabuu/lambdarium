@@ -7,6 +7,8 @@ edition = "2024"
 lalrpop = "0.22.2"
 
 [dependencies]
+inquire = "0.9.1"
+inquire-derive = "0.9.1"
 lalrpop-util = { version = "0.22.2", features = ["lexer", "unicode"] }
 logos = "0.15.1"
 nu-ansi-term = "0.50.3"

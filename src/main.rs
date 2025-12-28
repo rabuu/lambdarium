@@ -1,12 +1,14 @@
-use std::{borrow::Cow, io};
+use std::{borrow::Cow, fmt, io};
 
+use inquire::Confirm;
+use inquire_derive::Selectable;
 use nu_ansi_term::{Color, Style};
 use reedline::{
     EditCommand, Emacs, Highlighter, KeyCode, KeyModifiers, Prompt, Reedline, ReedlineEvent,
     Signal, StyledText, ValidationResult, Validator, default_emacs_keybindings,
 };
 
-use lambda_calculator::LAMBDA;
+use lambda_calculator::{BETA, LAMBDA};
 
 const COLOR_LAMBDA: Color = Color::Purple;
 const COLOR_PUNCTUATION: Color = Color::DarkGray;
@@ -84,6 +86,21 @@ impl Validator for MatchingParensValidator {
     }
 }
 
+#[derive(Debug, Clone, Copy, Selectable)]
+enum TermAction {
+    BetaContraction,
+    TypeInference,
+}
+
+impl fmt::Display for TermAction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TermAction::BetaContraction => write!(f, "{BETA}-contract"),
+            TermAction::TypeInference => write!(f, "Infer type (in STLC)"),
+        }
+    }
+}
+
 fn main() -> io::Result<()> {
     let edit_mode = {
         let mut keybindings = default_emacs_keybindings();
@@ -117,11 +134,40 @@ fn main() -> io::Result<()> {
             continue;
         };
 
-        let Some(typ) = term.get_type() else {
-            eprintln!("Not typable in STLC.");
-            continue;
+        println!("What do you want to do with the term?");
+        let action = match TermAction::select("Action:").prompt() {
+            Ok(action) => action,
+            Err(_) => return Ok(()),
         };
 
-        println!("{typ}");
+        match action {
+            TermAction::TypeInference => {
+                let Some(typ) = term.get_type() else {
+                    eprintln!("Not typable in STLC.");
+                    continue;
+                };
+
+                println!("{typ}");
+            }
+            TermAction::BetaContraction => {
+                let mut term = term;
+
+                let mut first = Some(());
+                while let Some(contracted) = term.beta_contract() {
+                    if first.take().is_none() {
+                        let confirm_again = Confirm::new("Continue?").with_default(true).prompt();
+                        match confirm_again {
+                            Ok(true) => (),
+                            Ok(false) | Err(_) => break,
+                        }
+                    }
+
+                    term = contracted;
+                    println!("{term}");
+                }
+
+                println!("The term is in {BETA} normal form.");
+            }
+        }
     }
 }
