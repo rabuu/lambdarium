@@ -403,6 +403,7 @@ dependencies = [
  "lalrpop",
  "lalrpop-util",
  "logos",
+ "nu-ansi-term",
  "reedline",
 ]
 

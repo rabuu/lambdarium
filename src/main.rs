@@ -1,11 +1,15 @@
 use std::{borrow::Cow, io};
 
+use nu_ansi_term::{Color, Style};
 use reedline::{
-    EditCommand, Emacs, KeyCode, KeyModifiers, Prompt, Reedline, ReedlineEvent, Signal,
-    default_emacs_keybindings,
+    EditCommand, Emacs, Highlighter, KeyCode, KeyModifiers, Prompt, Reedline, ReedlineEvent,
+    Signal, StyledText, default_emacs_keybindings,
 };
 
 use lambda_calculator::LAMBDA;
+
+const COLOR_LAMBDA: Color = Color::Purple;
+const COLOR_PUNCTUATION: Color = Color::DarkGray;
 
 struct MainPrompt;
 impl Prompt for MainPrompt {
@@ -37,6 +41,24 @@ impl Prompt for MainPrompt {
     }
 }
 
+struct TermHighlighter;
+impl Highlighter for TermHighlighter {
+    fn highlight(&self, line: &str, _cursor: usize) -> reedline::StyledText {
+        let mut styled_text = StyledText::new();
+
+        for c in line.chars() {
+            let style = match c {
+                LAMBDA => Style::new().bold().fg(COLOR_LAMBDA),
+                '.' | '(' | ')' => Style::new().fg(COLOR_PUNCTUATION),
+                _ => Style::new(),
+            };
+            styled_text.push((style, c.to_string()));
+        }
+
+        styled_text
+    }
+}
+
 fn main() -> io::Result<()> {
     let edit_mode = {
         let mut keybindings = default_emacs_keybindings();
@@ -46,10 +68,12 @@ fn main() -> io::Result<()> {
             ReedlineEvent::Edit(vec![EditCommand::InsertChar(LAMBDA)]),
         );
 
-        Box::new(Emacs::new(keybindings))
+        Emacs::new(keybindings)
     };
 
-    let mut line_editor = Reedline::create().with_edit_mode(edit_mode);
+    let mut line_editor = Reedline::create()
+        .with_edit_mode(Box::new(edit_mode))
+        .with_highlighter(Box::new(TermHighlighter));
 
     let mut first = Some(());
     loop {
