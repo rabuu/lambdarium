@@ -50,7 +50,7 @@ impl Highlighter for TermHighlighter {
 
         for c in line.chars() {
             let style = match c {
-                LAMBDA => Style::new().bold().fg(COLOR_LAMBDA),
+                LAMBDA | '\\' => Style::new().bold().fg(COLOR_LAMBDA),
                 '.' | '(' | ')' => Style::new().fg(COLOR_PUNCTUATION),
                 _ => Style::new(),
             };
