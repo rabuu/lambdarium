@@ -77,34 +77,33 @@ impl Fresh {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parse_term;
 
     #[test]
     fn nothing_happens() {
-        let term = parse_term("\\x.zy").unwrap();
-        let replace = parse_term("(uv)").unwrap();
+        let term = Term::parse("\\x.zy").unwrap();
+        let replace = Term::parse("(uv)").unwrap();
         assert_eq!(term.clone().subst(&Variable::from("x"), &replace), term);
     }
 
     #[test]
     fn simple_subst() {
-        let term = parse_term("\\y.x").unwrap();
-        let replace = parse_term("z").unwrap();
-        let substed = parse_term("\\y.z").unwrap();
+        let term = Term::parse("\\y.x").unwrap();
+        let replace = Term::parse("z").unwrap();
+        let substed = Term::parse("\\y.z").unwrap();
         assert_eq!(term.subst(&Variable::from("x"), &replace), substed);
     }
 
     #[test]
     fn nested_subst() {
-        let term = parse_term(r#"\y.x(\x.x)"#).unwrap();
-        let replace = parse_term(r#"\y.xy"#).unwrap();
-        let substed = parse_term(r#"\y.(\y.xy)(\x.x)"#).unwrap();
+        let term = Term::parse(r#"\y.x(\x.x)"#).unwrap();
+        let replace = Term::parse(r#"\y.xy"#).unwrap();
+        let substed = Term::parse(r#"\y.(\y.xy)(\x.x)"#).unwrap();
         assert_eq!(term.subst(&Variable::from("x"), &replace), substed);
     }
 
     #[test]
     fn subst_with_fresh() {
-        let term = parse_term(r#"\y.xy"#).unwrap();
+        let term = Term::parse(r#"\y.xy"#).unwrap();
         let y: Term = Variable::from("y").into();
         let fresh = Variable::from("_0");
 

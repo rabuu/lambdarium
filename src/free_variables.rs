@@ -64,7 +64,7 @@ mod tests {
 
     #[test]
     fn no_free_variables() {
-        let term = crate::parse_term(r#"\xy.x(\z.yz)"#).unwrap();
+        let term = Term::parse(r#"\xy.x(\z.yz)"#).unwrap();
         assert!(term.free_variables().is_empty());
         assert!(!term.contains_free_variable(&Variable::from("x")));
         assert!(!term.contains_free_variable(&Variable::from("y")));
@@ -73,14 +73,14 @@ mod tests {
 
     #[test]
     fn atom_is_free() {
-        let term = crate::parse_term(r#"x"#).unwrap();
+        let term = Term::parse(r#"x"#).unwrap();
         assert_eq!(term.free_variables(), HashSet::from([Variable::from("x")]));
         assert!(term.contains_free_variable(&Variable::from("x")));
     }
 
     #[test]
     fn some_free_vars() {
-        let term = crate::parse_term(r#"\x.xy(\y.zy)"#).unwrap();
+        let term = Term::parse(r#"\x.xy(\y.zy)"#).unwrap();
         assert_eq!(
             term.free_variables(),
             HashSet::from([Variable::from("y"), Variable::from("z")])

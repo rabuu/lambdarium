@@ -68,7 +68,6 @@ impl Abstraction {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parse_term;
 
     #[test]
     fn simple_alpha_rename() {
@@ -99,15 +98,15 @@ mod tests {
 
     #[test]
     fn identity_alpha_congruent() {
-        let id1 = parse_term(r#"\x.x"#).unwrap();
-        let id2 = parse_term(r#"\y.y"#).unwrap();
+        let id1 = Term::parse(r#"\x.x"#).unwrap();
+        let id2 = Term::parse(r#"\y.y"#).unwrap();
         assert!(id1.is_alpha_congruent(&id2));
     }
 
     #[test]
     fn constant_function_alpha_congruent() {
-        let id1 = parse_term(r#"\xy.x"#).unwrap();
-        let id2 = parse_term(r#"\ab.a"#).unwrap();
+        let id1 = Term::parse(r#"\xy.x"#).unwrap();
+        let id2 = Term::parse(r#"\ab.a"#).unwrap();
         assert!(id1.is_alpha_congruent(&id2));
     }
 }
