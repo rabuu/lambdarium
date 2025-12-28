@@ -37,8 +37,7 @@ impl Application {
     fn is_alpha_congruent(&self, other: &Term) -> bool {
         match other {
             Term::App(other) => {
-                self.first.is_alpha_congruent(&other.first)
-                    && self.second.is_alpha_congruent(&other.second)
+                self.lhs.is_alpha_congruent(&other.lhs) && self.rhs.is_alpha_congruent(&other.rhs)
             }
             _ => false,
         }
@@ -77,8 +76,8 @@ mod tests {
             binder: Variable::from("x"),
             body: Box::new(
                 Application {
-                    first: Box::new(Variable::from("x").into()),
-                    second: Box::new(Variable::from("y").into()),
+                    lhs: Box::new(Variable::from("x").into()),
+                    rhs: Box::new(Variable::from("y").into()),
                 }
                 .into(),
             ),
@@ -88,8 +87,8 @@ mod tests {
             binder: Variable::from("z"),
             body: Box::new(
                 Application {
-                    first: Box::new(Variable::from("z").into()),
-                    second: Box::new(Variable::from("y").into()),
+                    lhs: Box::new(Variable::from("z").into()),
+                    rhs: Box::new(Variable::from("y").into()),
                 }
                 .into(),
             ),

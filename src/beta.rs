@@ -12,17 +12,17 @@ impl Term {
 
 impl Application {
     fn beta_contract(mut self) -> Option<Term> {
-        if let Term::Abs(abs) = *self.first {
-            return Some(abs.body.subst(&abs.binder, &self.second));
+        if let Term::Abs(abs) = *self.lhs {
+            return Some(abs.body.subst(&abs.binder, &self.rhs));
         }
 
-        if let Some(constracted) = self.first.clone().beta_contract() {
-            self.first = Box::new(constracted);
+        if let Some(constracted) = self.lhs.clone().beta_contract() {
+            self.lhs = Box::new(constracted);
             return Some(self.into());
         }
 
-        if let Some(constracted) = self.second.beta_contract() {
-            self.second = Box::new(constracted);
+        if let Some(constracted) = self.rhs.beta_contract() {
+            self.rhs = Box::new(constracted);
             return Some(self.into());
         }
 

@@ -33,7 +33,7 @@ SimpleTerm: Term = {
 	"(" <Term> ")",
 };
 
-App: Application = <first: AppTerm> <second: SimpleTerm> => Application { first: Box::new(first), second: Box::new(second) };
+App: Application = <lhs: AppTerm> <rhs: SimpleTerm> => Application { lhs: Box::new(lhs), rhs: Box::new(rhs) };
 
 Var: Variable = "variable" => Variable { inner: <> };
 

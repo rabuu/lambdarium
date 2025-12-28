@@ -41,8 +41,8 @@ impl From<Variable> for Term {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Application {
-    pub first: Box<Term>,
-    pub second: Box<Term>,
+    pub lhs: Box<Term>,
+    pub rhs: Box<Term>,
 }
 
 impl From<Application> for Term {

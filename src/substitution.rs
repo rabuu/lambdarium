@@ -27,8 +27,8 @@ impl Subst for Variable {
 
 impl Subst for Application {
     fn subst_impl(mut self, x: &Variable, to: &Term, fresh: &mut Fresh) -> Term {
-        self.first = Box::new(self.first.subst_impl(x, to, fresh));
-        self.second = Box::new(self.second.subst_impl(x, to, fresh));
+        self.lhs = Box::new(self.lhs.subst_impl(x, to, fresh));
+        self.rhs = Box::new(self.rhs.subst_impl(x, to, fresh));
         self.into()
     }
 }
@@ -112,8 +112,8 @@ mod tests {
             binder: fresh.clone(),
             body: Box::new(
                 Application {
-                    first: Box::new(y.clone()),
-                    second: Box::new(fresh.into()),
+                    lhs: Box::new(y.clone()),
+                    rhs: Box::new(fresh.into()),
                 }
                 .into(),
             ),

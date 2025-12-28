@@ -24,7 +24,7 @@ impl fmt::Display for Variable {
 
 impl fmt::Display for Application {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({} {})", self.first, self.second)
+        write!(f, "({} {})", self.lhs, self.rhs)
     }
 }
 

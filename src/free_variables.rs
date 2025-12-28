@@ -48,13 +48,13 @@ impl Abstraction {
 
 impl Application {
     fn free_variables_with_env(&self, env: &mut HashSet<Variable>) -> HashSet<Variable> {
-        let first = self.first.free_variables_with_env(env);
-        let second = self.second.free_variables_with_env(env);
-        [first, second].into_iter().flatten().collect()
+        let lhs = self.lhs.free_variables_with_env(env);
+        let rhs = self.rhs.free_variables_with_env(env);
+        [lhs, rhs].into_iter().flatten().collect()
     }
 
     fn contains_free_variable(&self, var: &Variable) -> bool {
-        self.first.contains_free_variable(var) || self.second.contains_free_variable(var)
+        self.lhs.contains_free_variable(var) || self.rhs.contains_free_variable(var)
     }
 }
 

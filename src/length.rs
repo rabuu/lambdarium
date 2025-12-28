@@ -24,6 +24,6 @@ impl Abstraction {
 
 impl Application {
     pub fn length(&self) -> usize {
-        self.first.length() + self.second.length()
+        self.lhs.length() + self.rhs.length()
     }
 }
