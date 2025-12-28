@@ -1,4 +1,4 @@
-use crate::{Abstraction, Application, Term, Variable};
+use crate::core::{Abstraction, Application, Term, Variable};
 
 pub trait Subst: Sized {
     fn subst(self, x: &Variable, to: &Term) -> Term {

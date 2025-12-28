@@ -1,4 +1,5 @@
-use crate::{Abstraction, Application, Term, substitution::Subst};
+use crate::core::{Abstraction, Application, Term};
+use crate::substitution::Subst;
 
 impl Term {
     pub fn beta_contract(self) -> Option<Term> {

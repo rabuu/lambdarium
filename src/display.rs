@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::{Abstraction, Application, Term, Variable};
+use crate::core::{Abstraction, Application, Term, Variable};
 
 impl fmt::Display for Term {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

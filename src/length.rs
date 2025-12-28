@@ -1,4 +1,4 @@
-use crate::{Abstraction, Application, Term, Variable};
+use crate::core::{Abstraction, Application, Term, Variable};
 
 impl Term {
     pub fn length(&self) -> usize {

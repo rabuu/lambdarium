@@ -1,9 +1,7 @@
-use std::{
-    collections::{HashMap, HashSet},
-    fmt,
-};
+use std::collections::{HashMap, HashSet};
+use std::fmt;
 
-use crate::{Term, Variable};
+use crate::core::{Term, Variable};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Type {

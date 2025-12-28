@@ -1,5 +1,5 @@
+use crate::core::{Abstraction, Application, Term, Variable};
 use crate::substitution::Subst;
-use crate::{Abstraction, Application, Term, Variable};
 
 impl Abstraction {
     pub fn alpha_rename(mut self, new: &Variable) -> Option<Abstraction> {

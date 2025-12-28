@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 
-use crate::{Term, Variable, Abstraction, Application, Program, Let, MetaVariable};
+use crate::core::{Term, Variable, Abstraction, Application};
+use crate::meta::{Program, Let, MetaVariable};
 use crate::parser::ProgramElement;
 use crate::parser::lexer::{LexerError, Token};
 

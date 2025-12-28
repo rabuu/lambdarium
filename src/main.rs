@@ -8,6 +8,9 @@ use reedline::{
     Signal, StyledText, ValidationResult, Validator, default_emacs_keybindings,
 };
 
+use lambda_calculator::core::Term;
+use lambda_calculator::meta::Program;
+
 const PROMPT: &str = "λ-calculator";
 
 const COLOR_LAMBDA: Color = Color::Purple;
@@ -129,12 +132,12 @@ fn main() -> io::Result<()> {
             Signal::CtrlC | Signal::CtrlD => return Ok(()),
         };
 
-        if let Some(program) = lambda_calculator::Program::parse(&line) {
+        if let Some(program) = Program::parse(&line) {
             dbg!(program);
             continue;
         }
 
-        let Some(term) = lambda_calculator::Term::parse(line) else {
+        let Some(term) = Term::parse(line) else {
             eprintln!("Invalid λ-term.");
             continue;
         };

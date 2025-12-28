@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::{Abstraction, Application, Term, Variable};
+use crate::core::{Abstraction, Application, Term, Variable};
 
 impl Term {
     pub fn free_variables(&self) -> HashSet<Variable> {
