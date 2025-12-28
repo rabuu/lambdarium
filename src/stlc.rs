@@ -56,7 +56,7 @@ impl Term {
     pub fn get_type(&self) -> Option<Type> {
         let mut collector = ConstraintCollector::default();
         let mut env = HashMap::new();
-        let (ununified_type, constraints) = collector.collect_constraints(&mut env, &self)?;
+        let (ununified_type, constraints) = collector.collect_constraints(&mut env, self)?;
         let constraints = constraints.into_iter().collect();
         let mgu = Unifier::most_general(constraints)?;
         let unified_type = mgu.apply(ununified_type);
@@ -96,7 +96,7 @@ impl ConstraintCollector {
     ) -> Option<(Type, HashSet<Constraint>)> {
         match t {
             Term::Var(variable) => {
-                let typ = env.get(&variable)?;
+                let typ = env.get(variable)?;
                 Some((typ.clone(), HashSet::default()))
             }
             Term::App(application) => {
