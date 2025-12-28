@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::{Abstraction, Application, Term, Variable};
+use crate::{Abstraction, Application, LAMBDA, Term, Variable};
 
 impl fmt::Display for Term {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -30,6 +30,6 @@ impl fmt::Display for Application {
 
 impl fmt::Display for Abstraction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "(λ{}.{})", self.binder, self.body)
+        write!(f, "({LAMBDA}{}.{})", self.binder, self.body)
     }
 }

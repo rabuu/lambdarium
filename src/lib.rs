@@ -1,7 +1,5 @@
 use std::collections::VecDeque;
 
-pub use parser::parse_term;
-
 mod alpha;
 mod beta;
 mod display;
@@ -10,6 +8,8 @@ mod length;
 mod parser;
 mod stlc;
 mod substitution;
+
+pub const LAMBDA: char = 'λ';
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Term {

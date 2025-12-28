@@ -6,10 +6,12 @@ use lexer::Lexer;
 
 mod lexer;
 
-pub fn parse_term(source: &str) -> Option<Term> {
-    let mut lexer = Lexer::new(source);
-    let parser = grammar::TermParser::new();
-    parser.parse(&mut lexer).ok()
+impl Term {
+    pub fn parse<S: AsRef<str>>(source: S) -> Option<Self> {
+        let mut lexer = Lexer::new(source.as_ref());
+        let parser = grammar::TermParser::new();
+        parser.parse(&mut lexer).ok()
+    }
 }
 
 lalrpop_mod!(
