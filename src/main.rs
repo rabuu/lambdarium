@@ -10,11 +10,15 @@ fn main() {
             continue;
         };
 
-        println!("TERM: {term}");
-        let mut term = term.clone();
-        while let Some(reduced) = term.beta_contract() {
-            term = reduced;
-            eprintln!("{term}");
+        if let Some(typ) = term.get_type() {
+            println!("{}", typ);
         }
+
+        // println!("TERM: {term}");
+        // let mut term = term.clone();
+        // while let Some(reduced) = term.beta_contract() {
+        //     term = reduced;
+        //     eprintln!("{term}");
+        // }
     }
 }
