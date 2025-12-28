@@ -3,7 +3,7 @@ use std::{borrow::Cow, io};
 use nu_ansi_term::{Color, Style};
 use reedline::{
     EditCommand, Emacs, Highlighter, KeyCode, KeyModifiers, Prompt, Reedline, ReedlineEvent,
-    Signal, StyledText, default_emacs_keybindings,
+    Signal, StyledText, ValidationResult, Validator, default_emacs_keybindings,
 };
 
 use lambda_calculator::LAMBDA;
@@ -59,6 +59,31 @@ impl Highlighter for TermHighlighter {
     }
 }
 
+struct MatchingParensValidator;
+impl Validator for MatchingParensValidator {
+    fn validate(&self, line: &str) -> reedline::ValidationResult {
+        let mut counter = 0;
+
+        for c in line.chars() {
+            match c {
+                '(' => counter += 1,
+                ')' => counter -= 1,
+                _ => (),
+            }
+
+            if counter < 0 {
+                return ValidationResult::Incomplete;
+            }
+        }
+
+        if counter == 0 {
+            ValidationResult::Complete
+        } else {
+            ValidationResult::Incomplete
+        }
+    }
+}
+
 fn main() -> io::Result<()> {
     let edit_mode = {
         let mut keybindings = default_emacs_keybindings();
@@ -72,6 +97,7 @@ fn main() -> io::Result<()> {
     };
 
     let mut line_editor = Reedline::create()
+        .with_validator(Box::new(MatchingParensValidator))
         .with_edit_mode(Box::new(edit_mode))
         .with_highlighter(Box::new(TermHighlighter));
 
