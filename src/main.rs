@@ -37,7 +37,7 @@ impl Prompt for MainPrompt {
             reedline::PromptHistorySearchStatus::Passing => "",
             reedline::PromptHistorySearchStatus::Failing => "failing ",
         };
-        Cow::Owned(format!("({prefix}search: {})", history_search.term))
+        Cow::Owned(format!(" ({prefix}search: {})> ", history_search.term))
     }
 }
 
