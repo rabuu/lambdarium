@@ -1,6 +1,8 @@
 use crate::core::{Abstraction, Application, Term};
 use crate::substitution::Subst;
 
+const NORMALIZATION_LIMIT: usize = 1000;
+
 impl Term {
     pub fn beta_contract(self) -> Option<Term> {
         match self {
@@ -8,6 +10,21 @@ impl Term {
             Term::App(application) => application.beta_contract(),
             Term::Abs(abstraction) => abstraction.beta_contract(),
         }
+    }
+
+    pub fn normalize(mut self) -> Option<Term> {
+        let mut counter = 0;
+
+        while let Some(contractum) = self.clone().beta_contract() {
+            self = contractum;
+            counter += 1;
+
+            if counter > NORMALIZATION_LIMIT {
+                return None;
+            }
+        }
+
+        Some(self)
     }
 }
 

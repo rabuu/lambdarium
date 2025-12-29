@@ -8,6 +8,17 @@ pub struct Program {
     pub terms: Vec<Term>,
 }
 
+impl Program {
+    pub fn lower(self) -> Option<Vec<core::Term>> {
+        let defs = lower_defs(&self.defs)?;
+
+        self.terms
+            .into_iter()
+            .map(|t| t.lower_inner(&defs))
+            .collect()
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Definition {
     pub metavar: String,
