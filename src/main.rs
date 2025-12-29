@@ -8,7 +8,7 @@ use reedline::{
     Signal, StyledText, ValidationResult, Validator, default_emacs_keybindings,
 };
 
-use lambda_calculator::meta::Program;
+use lambda_calculator::meta::{Program, Term};
 
 const PROMPT: &str = "λ-calculator";
 
@@ -131,51 +131,56 @@ fn main() -> io::Result<()> {
             Signal::CtrlC | Signal::CtrlD => return Ok(()),
         };
 
-        if let Some(program) = Program::parse(&line) {
-            dbg!(program);
-            continue;
-        }
-
-        // let Some(term) = Term::parse(line) else {
-        //     eprintln!("Invalid λ-term.");
+        // if let Some(program) = Program::parse(&line) {
+        //     dbg!(program);
         //     continue;
-        // };
-        //
-        // println!("Term: {term}");
-        //
-        // let action = match TermAction::select("Action:").prompt() {
-        //     Ok(action) => action,
-        //     Err(_) => return Ok(()),
-        // };
-        //
-        // match action {
-        //     TermAction::TypeInference => {
-        //         let Some(typ) = term.get_type() else {
-        //             eprintln!("Not typable in STLC.");
-        //             continue;
-        //         };
-        //
-        //         println!("{typ}");
-        //     }
-        //     TermAction::BetaContraction => {
-        //         let mut term = term;
-        //
-        //         let mut first = Some(());
-        //         while let Some(contracted) = term.beta_contract() {
-        //             if first.take().is_none() {
-        //                 let confirm_again = Confirm::new("Continue?").with_default(true).prompt();
-        //                 match confirm_again {
-        //                     Ok(true) => (),
-        //                     Ok(false) | Err(_) => break,
-        //                 }
-        //             }
-        //
-        //             term = contracted;
-        //             println!("{term}");
-        //         }
-        //
-        //         println!("The term is in β normal form.");
-        //     }
         // }
+
+        let Some(term) = Term::parse(line) else {
+            eprintln!("Invalid λ-term.");
+            continue;
+        };
+
+        let Some(term) = term.lower(&[]) else {
+            eprintln!("Couldn't lower to core term.");
+            continue;
+        };
+
+        println!("Term: {term}");
+
+        let action = match TermAction::select("Action:").prompt() {
+            Ok(action) => action,
+            Err(_) => return Ok(()),
+        };
+
+        match action {
+            TermAction::TypeInference => {
+                let Some(typ) = term.get_type() else {
+                    eprintln!("Not typable in STLC.");
+                    continue;
+                };
+
+                println!("{typ}");
+            }
+            TermAction::BetaContraction => {
+                let mut term = term;
+
+                let mut first = Some(());
+                while let Some(contracted) = term.beta_contract() {
+                    if first.take().is_none() {
+                        let confirm_again = Confirm::new("Continue?").with_default(true).prompt();
+                        match confirm_again {
+                            Ok(true) => (),
+                            Ok(false) | Err(_) => break,
+                        }
+                    }
+
+                    term = contracted;
+                    println!("{term}");
+                }
+
+                println!("The term is in β normal form.");
+            }
+        }
     }
 }
