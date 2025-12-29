@@ -1,7 +1,4 @@
-use std::collections::VecDeque;
-
-use crate::core::{Term, Variable, Abstraction, Application};
-use crate::meta::{Program, Definition, MetaVariable};
+use crate::meta::{Program, Definition, Term};
 use crate::parser::ProgramElement;
 use crate::parser::lexer::{LexerError, Token};
 
@@ -24,46 +21,43 @@ extern {
 	}
 }
 
-//
-// Core λ-calculus
-//
-
 pub Term: Term = {
-	Abs => Term::Abs(<>),
+	Abs,
 	AppTerm,
 };
 
 AppTerm: Term = {
 	SimpleTerm,
-	App => Term::App(<>),
+	Application,
 };
 
 SimpleTerm: Term = {
-	Var => Term::Var(<>),
+	"variable" => Term::Var(<>),
+	"metavariable" => Term::Meta(<>),
 	"(" <Term> ")",
 };
 
-App: Application = <lhs: AppTerm> <rhs: SimpleTerm> => Application { lhs: Box::new(lhs), rhs: Box::new(rhs) };
+Application: Term = <lhs: AppTerm> <rhs: SimpleTerm> => Term::App {
+	lhs: Box::new(lhs),
+	rhs: Box::new(rhs)
+};
 
-Var: Variable = "variable" => Variable { inner: <> };
-
-Abs: Abstraction = "lambda" <binders: Var+> "." <body: Term> => Abstraction::from_uncurried(VecDeque::from(binders), body);
-
-//
-// Meta-language
-//
+Abs: Term = "lambda" <binders: "variable"+> "." <body: Term> => Term::Abs {
+	binders,
+	body: Box::new(body),
+};
 
 pub Program: Program = <elements: (<ProgramElement> ";")*> <last: ProgramElement?> => {
-	let mut lets = Vec::new();
+	let mut defs = Vec::new();
 	let mut terms = Vec::new();
 	for element in elements.into_iter().map(Some).chain(std::iter::once(last)).flatten() {
 		match element {
-			ProgramElement::Def(l) => lets.push(l),
+			ProgramElement::Def(d) => defs.push(d),
 			ProgramElement::Term(t) => terms.push(t),
 		}
 	}
 
-	Program { lets, terms }
+	Program { defs, terms }
 };
 
 ProgramElement: ProgramElement = {
@@ -71,6 +65,4 @@ ProgramElement: ProgramElement = {
 	Term => ProgramElement::Term(<>),
 };
 
-MetaVar: MetaVariable = "metavariable" => MetaVariable { inner: <> };
-
-Def: Definition = "def" <metavar: MetaVar> "=" <body: Term> => Def { metavar, body };
+Def: Definition = "def" <metavar: "metavariable"> "=" <body: Term> => Definition { metavar, body };

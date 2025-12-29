@@ -1,7 +1,6 @@
 use lalrpop_util::lalrpop_mod;
 
-use crate::core::Term;
-use crate::meta::{Definition, Program};
+use crate::meta::{Definition, Program, Term};
 
 use lexer::Lexer;
 
