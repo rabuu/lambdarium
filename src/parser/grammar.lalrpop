@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 use crate::core::{Term, Variable, Abstraction, Application};
-use crate::meta::{Program, Let, MetaVariable};
+use crate::meta::{Program, Definition, MetaVariable};
 use crate::parser::ProgramElement;
 use crate::parser::lexer::{LexerError, Token};
 
@@ -17,7 +17,7 @@ extern {
 	    "lambda" => Token::Lambda,
 	    "." => Token::Dot,
 	    "variable" => Token::Variable(<String>),
-		"let" => Token::Let,
+		"def" => Token::Def,
 		"metavariable" => Token::MetaVariable(<String>),
 		"=" => Token::Equals,
 		";" => Token::Semicolon,
@@ -58,7 +58,7 @@ pub Program: Program = <elements: (<ProgramElement> ";")*> <last: ProgramElement
 	let mut terms = Vec::new();
 	for element in elements.into_iter().map(Some).chain(std::iter::once(last)).flatten() {
 		match element {
-			ProgramElement::Let(l) => lets.push(l),
+			ProgramElement::Def(l) => lets.push(l),
 			ProgramElement::Term(t) => terms.push(t),
 		}
 	}
@@ -67,10 +67,10 @@ pub Program: Program = <elements: (<ProgramElement> ";")*> <last: ProgramElement
 };
 
 ProgramElement: ProgramElement = {
-	Let => ProgramElement::Let(<>),
+	Def => ProgramElement::Def(<>),
 	Term => ProgramElement::Term(<>),
 };
 
 MetaVar: MetaVariable = "metavariable" => MetaVariable { inner: <> };
 
-Let: Let = "let" <metavar: MetaVar> "=" <body: Term> => Let { metavar, body };
+Def: Definition = "def" <metavar: MetaVar> "=" <body: Term> => Def { metavar, body };

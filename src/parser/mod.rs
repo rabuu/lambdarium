@@ -1,7 +1,7 @@
 use lalrpop_util::lalrpop_mod;
 
 use crate::core::Term;
-use crate::meta::{Let, Program};
+use crate::meta::{Definition, Program};
 
 use lexer::Lexer;
 
@@ -31,6 +31,6 @@ lalrpop_mod!(
 );
 
 enum ProgramElement {
-    Let(Let),
+    Def(Definition),
     Term(Term),
 }
