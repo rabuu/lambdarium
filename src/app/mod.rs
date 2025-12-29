@@ -28,7 +28,7 @@ pub enum Command {
 
 pub fn run(cli: CliArgs) -> Result<(), ()> {
     match cli.cmd {
-        Command::Repl => todo!(),
+        Command::Repl => repl::run().map_err(|_| ())?,
         Command::Eval { input_file } => {
             let file = fs::read_to_string(&input_file).map_err(|_| ())?;
             let program = Program::parse(&file).ok_or(())?;
