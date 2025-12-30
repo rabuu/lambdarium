@@ -608,8 +608,10 @@ dependencies = [
  "inquire",
  "inquire-derive",
  "lambda-calculator",
+ "miette",
  "nu-ansi-term",
  "reedline",
+ "thiserror",
 ]
 
 [[package]]

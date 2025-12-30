@@ -10,6 +10,8 @@ path = "src/main.rs"
 
 [dependencies]
 lambda-calculator = { path = ".." }
+miette = { workspace = true }
+thiserror = { workspace = true }
 clap = { version = "4.5.53", features = ["derive"] }
 inquire = "0.9.1"
 inquire-derive = "0.9.1"

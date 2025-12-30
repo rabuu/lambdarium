@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt, io};
+use std::{borrow::Cow, fmt};
 
 use inquire::Confirm;
 use inquire_derive::Selectable;
@@ -10,12 +10,14 @@ use reedline::{
 
 use lambda_calculator::meta::Term;
 
+use crate::error::AppError;
+
 const PROMPT: &str = "λ-calculator";
 
 const COLOR_LAMBDA: Color = Color::Purple;
 const COLOR_PUNCTUATION: Color = Color::DarkGray;
 
-pub fn run() -> io::Result<()> {
+pub fn run() -> Result<(), AppError> {
     let edit_mode = {
         let mut keybindings = default_emacs_keybindings();
         keybindings.add_binding(
@@ -43,21 +45,27 @@ pub fn run() -> io::Result<()> {
             Signal::CtrlC | Signal::CtrlD => return Ok(()),
         };
 
-        let Some(term) = Term::parse(line) else {
-            eprintln!("Invalid λ-term.");
-            continue;
+        let term = match Term::parse(&line) {
+            Ok(term) => term,
+            Err(err) => {
+                render_report_with_source(err, line);
+                continue;
+            }
         };
 
-        let Some(term) = term.lower(&[]) else {
-            eprintln!("Couldn't lower to core term.");
-            continue;
+        let term = match term.lower(&[]) {
+            Ok(term) => term,
+            Err(err) => {
+                render_report_with_source(err, line);
+                continue;
+            }
         };
 
         println!("Term: {term}");
 
         let action = match TermAction::select("Action:").prompt() {
             Ok(action) => action,
-            Err(_) => return Ok(()),
+            Err(_) => continue,
         };
 
         match action {
@@ -178,4 +186,10 @@ impl fmt::Display for TermAction {
             TermAction::TypeInference => write!(f, "Infer type (in STLC)"),
         }
     }
+}
+
+fn render_report_with_source<D: Into<miette::Report>>(err: D, source: String) {
+    let report: miette::Report = err.into();
+    let report = report.with_source_code(source);
+    eprintln!("{report:?}")
 }

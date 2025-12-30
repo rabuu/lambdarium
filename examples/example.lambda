@@ -4,4 +4,6 @@ def <i> = \x.x;
 
 <i> x;
 <k> x y;
-<s> (\x.x) (\y.y) (\z.z)
+<s> (\x.x) (\y.y) (\z.z);
+
+(\x.xx)(\x.xx)

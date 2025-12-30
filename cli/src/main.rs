@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
+mod error;
 mod eval;
 mod repl;
 
@@ -24,11 +25,11 @@ pub enum Command {
     },
 }
 
-fn main() -> Result<(), ()> {
+fn main() -> miette::Result<()> {
     let args = CliArgs::parse();
 
     match args.cmd {
-        Command::Repl => repl::run().map_err(|_| ())?,
+        Command::Repl => repl::run()?,
         Command::Eval { input_file } => eval::run(&input_file)?,
     }
 
