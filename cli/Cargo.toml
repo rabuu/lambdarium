@@ -1,0 +1,17 @@
+[package]
+name = "lambda-calculator-cli"
+version = "0.1.0"
+edition = "2024"
+default-run = "lambda-calculator"
+
+[[bin]]
+name = "lambda-calculator"
+path = "src/main.rs"
+
+[dependencies]
+lambda-calculator = { path = ".." }
+clap = { version = "4.5.53", features = ["derive"] }
+inquire = "0.9.1"
+inquire-derive = "0.9.1"
+nu-ansi-term = "0.50.3"
+reedline = "0.44.0"

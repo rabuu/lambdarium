@@ -542,12 +542,19 @@ dependencies = [
 name = "lambda-calculator"
 version = "0.1.0"
 dependencies = [
- "clap",
- "inquire",
- "inquire-derive",
  "lalrpop",
  "lalrpop-util",
  "logos",
+]
+
+[[package]]
+name = "lambda-calculator-cli"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "inquire",
+ "inquire-derive",
+ "lambda-calculator",
  "nu-ansi-term",
  "reedline",
 ]
