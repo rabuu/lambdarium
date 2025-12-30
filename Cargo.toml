@@ -4,6 +4,9 @@ members = [
 ]
 default-members = [ "cli" ]
 
+[workspace.dependencies]
+thiserror = "2.0.17"
+
 [package]
 name = "lambda-calculator"
 version = "0.1.0"
@@ -13,5 +16,7 @@ edition = "2024"
 lalrpop = "0.22.2"
 
 [dependencies]
+thiserror = { workspace = true }
 lalrpop-util = { version = "0.22.2", features = ["lexer", "unicode"] }
 logos = "0.15.1"
+miette = { version = "7.6.0", features = ["fancy"] }
