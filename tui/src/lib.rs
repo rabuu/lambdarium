@@ -1,15 +1,10 @@
 use std::io;
 
-use crossterm::event::Event;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use ratatui::DefaultTerminal;
 use ratatui::prelude::*;
 use ratatui::symbols::border;
 use ratatui::widgets::Block;
-use tui_input::backend::crossterm::EventHandler;
 
 use crate::input_area::InputArea;
 
