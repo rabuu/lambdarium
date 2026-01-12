@@ -8,3 +8,4 @@ lambda-calculator = { path = ".." }
 anyhow = { workspace = true }
 crossterm = { workspace = true }
 ratatui = "0.30.0"
+tui-input = "0.15.0"

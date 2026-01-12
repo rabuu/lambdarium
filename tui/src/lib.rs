@@ -1,18 +1,81 @@
 use std::io;
 
-use ratatui::{DefaultTerminal, Frame};
+use crossterm::event::Event;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
+use ratatui::DefaultTerminal;
+use ratatui::prelude::*;
+use ratatui::symbols::border;
+use ratatui::widgets::Block;
+use tui_input::backend::crossterm::EventHandler;
+
+use crate::input_area::InputArea;
 
 mod input_area;
 
-pub fn app(terminal: &mut DefaultTerminal) -> io::Result<()> {
-    loop {
-        terminal.draw(render)?;
-        if crossterm::event::read()?.is_key_press() {
-            break Ok(());
+pub struct App {
+    input: InputArea,
+    exit: bool,
+}
+
+impl Default for App {
+    fn default() -> Self {
+        Self {
+            input: InputArea::default(),
+            exit: false,
         }
     }
 }
 
-fn render(frame: &mut Frame) {
-    frame.render_widget("hello world", frame.area());
+impl App {
+    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
+        while !self.exit {
+            terminal.draw(|frame| self.draw(frame))?;
+            self.handle_events()?;
+        }
+
+        Ok(())
+    }
+
+    fn draw(&self, frame: &mut Frame) {
+        let title = Line::from(" λ-calculator ".bold());
+        let help = Line::from(vec![" Quit ".into(), "<C-q> ".yellow().bold()]);
+        let outer_block = Block::bordered()
+            .title(title.centered())
+            .title_bottom(help.centered())
+            .border_set(border::THICK);
+
+        let area = outer_block.inner(frame.area());
+        let layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Length(3), Constraint::Fill(1)])
+            .split(area);
+
+        frame.render_widget(outer_block, frame.area());
+        frame.render_widget(&self.input, layout[0]);
+
+        let cursor = self.input.get_cursor_position(layout[0]);
+        frame.set_cursor_position(cursor);
+    }
+
+    fn handle_events(&mut self) -> io::Result<()> {
+        let event = crossterm::event::read()?;
+
+        if let Event::Key(key) = event {
+            match key {
+                KeyEvent {
+                    code: KeyCode::Char('q'),
+                    modifiers: KeyModifiers::CONTROL,
+                    ..
+                } => self.exit = true,
+                _ => {
+                    let _ = self.input.update(&event);
+                }
+            }
+        }
+
+        Ok(())
+    }
 }

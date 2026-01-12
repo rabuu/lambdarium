@@ -1,23 +1,43 @@
+use crossterm::event::Event;
 use ratatui::prelude::*;
-use ratatui::widgets::{Block, Borders, Paragraph};
+use ratatui::widgets::{Block, Paragraph};
+use tui_input::Input;
+use tui_input::backend::crossterm::EventHandler;
 
-pub struct InputArea<'a> {
-    text: Paragraph<'a>,
+#[derive(Debug, Default)]
+pub struct InputArea {
+    input: Input,
 }
 
-impl Default for InputArea<'_> {
-    fn default() -> Self {
-        let text =
-            Paragraph::default().block(Block::default().borders(Borders::ALL).title("Input"));
-        Self { text }
+impl InputArea {
+    pub fn update(&mut self, event: &Event) {
+        let _ = self.input.handle_event(event);
+    }
+
+    pub fn get_cursor_position(&self, area: Rect) -> (u16, u16) {
+        let width = area.width.max(3) - 3;
+        let scroll = self.input.visual_scroll(width as usize);
+
+        let x = self.input.visual_cursor().max(scroll) - scroll + 1;
+        (area.x + x as u16, area.y + 1)
     }
 }
 
-impl Widget for InputArea<'_> {
+impl Widget for &InputArea {
     fn render(self, area: Rect, buf: &mut Buffer)
     where
         Self: Sized,
     {
-        self.text.render(area, buf);
+        // keep 2 for borders and 1 for cursor
+        let width = area.width.max(3) - 3;
+        let scroll = self.input.visual_scroll(width as usize);
+
+        let text = self.input.value();
+        let block = Block::bordered().title("Input");
+
+        Paragraph::new(text)
+            .scroll((0, scroll as u16))
+            .block(block)
+            .render(area, buf);
     }
 }
