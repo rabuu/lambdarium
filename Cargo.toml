@@ -1,12 +1,15 @@
 [workspace]
 members = [
 	"cli",
+	"tui",
 ]
 default-members = [ "cli" ]
 
 [workspace.dependencies]
 miette = { version = "7.6.0", features = ["fancy"] }
 thiserror = "2.0.17"
+crossterm = "0.29.0"
+anyhow = "1.0.100"
 
 [package]
 name = "lambda-calculator"
