@@ -1,4 +1,4 @@
-use crossterm::event::Event;
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers};
 use ratatui::prelude::*;
 use ratatui::widgets::{Block, Paragraph};
 use tui_input::Input;
@@ -10,7 +10,21 @@ pub struct InputArea {
 }
 
 impl InputArea {
-    pub fn update(&mut self, event: &Event) {
+    pub fn update(&mut self, mut event: &Event) {
+        if let Event::Key(KeyEvent {
+            code: KeyCode::Char('\\'),
+            modifiers: KeyModifiers::NONE,
+            kind: KeyEventKind::Press,
+            state: KeyEventState::NONE,
+        }) = event
+        {
+            event = &Event::Key(KeyEvent {
+                code: KeyCode::Char('λ'),
+                modifiers: KeyModifiers::NONE,
+                kind: KeyEventKind::Press,
+                state: KeyEventState::NONE,
+            })
+        }
         let _ = self.input.handle_event(event);
     }
 
