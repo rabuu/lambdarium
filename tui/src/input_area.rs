@@ -7,6 +7,7 @@ use tui_input::backend::crossterm::EventHandler;
 #[derive(Debug, Default)]
 pub struct InputArea {
     input: Input,
+    term: Option<lambda_calculator::meta::Term>,
 }
 
 impl InputArea {
@@ -26,6 +27,9 @@ impl InputArea {
             })
         }
         let _ = self.input.handle_event(event);
+
+        let text = self.input.value();
+        self.term = lambda_calculator::meta::Term::parse(text).ok();
     }
 
     pub fn get_cursor_position(&self, area: Rect) -> (u16, u16) {
@@ -47,7 +51,11 @@ impl Widget for &InputArea {
         let scroll = self.input.visual_scroll(width as usize);
 
         let text = self.input.value();
-        let block = Block::bordered().title("Input");
+        let mut block = Block::bordered().title("Input");
+
+        if !text.is_empty() && self.term.is_none() {
+            block = block.red();
+        }
 
         Paragraph::new(text)
             .scroll((0, scroll as u16))
