@@ -872,6 +872,7 @@ dependencies = [
  "inquire",
  "inquire-derive",
  "lambda-calculator",
+ "lambda-calculator-tui",
  "miette",
  "nu-ansi-term",
  "reedline",

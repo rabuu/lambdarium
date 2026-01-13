@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
+use miette::IntoDiagnostic;
 
 mod error;
 mod eval;
@@ -15,6 +16,9 @@ pub struct CliArgs {
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    /// Execute the interactive TUI
+    Tui,
+
     /// Execute the interactive REPL
     Repl,
 
@@ -29,6 +33,7 @@ fn main() -> miette::Result<()> {
     let args = CliArgs::parse();
 
     match args.cmd {
+        Command::Tui => lambda_calculator_tui::run_app().into_diagnostic()?,
         Command::Repl => repl::run()?,
         Command::Eval { input_file } => eval::run(&input_file)?,
     }

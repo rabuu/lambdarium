@@ -10,6 +10,11 @@ use crate::input_area::InputArea;
 
 mod input_area;
 
+pub fn run_app() -> io::Result<()> {
+    let mut app = App::default();
+    ratatui::run(|terminal| app.run(terminal))
+}
+
 pub struct App {
     input: InputArea,
     exit: bool,
