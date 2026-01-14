@@ -54,14 +54,14 @@ impl App {
         let output = self.term.clone().map_or(vec![], |term| {
             let nf = term.clone().normalize();
             let stlc_typ = term.get_type();
-            [
-                Some(term.to_string()),
-                nf.map(|t| t.to_string()),
-                stlc_typ.map(|t| t.to_string()),
+            vec![
+                term.to_string(),
+                nf.map(|nf| format!("{nf} (normal form)"))
+                    .unwrap_or(String::from("No normal form")),
+                stlc_typ
+                    .map(|ty| format!("{ty} (STLC type)"))
+                    .unwrap_or(String::from("No type in STLC")),
             ]
-            .into_iter()
-            .flatten()
-            .collect()
         });
 
         let output = OutputArea::new(output);
