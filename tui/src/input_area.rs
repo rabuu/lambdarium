@@ -4,10 +4,12 @@ use ratatui::widgets::{Block, Paragraph};
 use tui_input::Input;
 use tui_input::backend::crossterm::EventHandler;
 
+use lambda_calculator::meta;
+
 #[derive(Debug, Default)]
 pub struct InputArea {
     input: Input,
-    term: Option<lambda_calculator::meta::Term>,
+    item: Option<meta::Item>,
 }
 
 impl InputArea {
@@ -29,7 +31,7 @@ impl InputArea {
         let _ = self.input.handle_event(event);
 
         let text = self.input.value();
-        self.term = lambda_calculator::meta::Term::parse(text).ok();
+        self.item = meta::Item::parse(text).ok();
     }
 
     pub fn get_cursor_position(&self, area: Rect) -> (u16, u16) {
@@ -53,7 +55,7 @@ impl Widget for &InputArea {
         let text = self.input.value();
         let mut block = Block::bordered().title("Input");
 
-        if !text.is_empty() && self.term.is_none() {
+        if !text.is_empty() && self.item.is_none() {
             block = block.red();
         }
 
