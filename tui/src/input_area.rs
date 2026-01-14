@@ -9,7 +9,7 @@ use lambda_calculator::meta;
 #[derive(Debug, Default)]
 pub struct InputArea {
     input: Input,
-    item: Option<meta::Item>,
+    pub item: Option<meta::Item>,
 }
 
 impl InputArea {

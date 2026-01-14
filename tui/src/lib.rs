@@ -6,27 +6,25 @@ use ratatui::prelude::*;
 use ratatui::symbols::border;
 use ratatui::widgets::Block;
 
+use lambda_calculator::{core, meta};
+
 use crate::input_area::InputArea;
+use crate::output_area::OutputArea;
 
 mod input_area;
+mod output_area;
 
 pub fn run_app() -> io::Result<()> {
     let mut app = App::default();
     ratatui::run(|terminal| app.run(terminal))
 }
 
+#[derive(Debug, Default)]
 pub struct App {
     input: InputArea,
     exit: bool,
-}
-
-impl Default for App {
-    fn default() -> Self {
-        Self {
-            input: InputArea::default(),
-            exit: false,
-        }
-    }
+    defs: Vec<meta::Definition>,
+    term: Option<core::Term>,
 }
 
 impl App {
@@ -53,8 +51,16 @@ impl App {
             .constraints([Constraint::Length(3), Constraint::Fill(1)])
             .split(area);
 
+        let output = OutputArea::new(
+            std::iter::once(self.term.clone())
+                .flatten()
+                .map(|t| t.to_string())
+                .collect(),
+        );
+
         frame.render_widget(outer_block, frame.area());
         frame.render_widget(&self.input, layout[0]);
+        frame.render_widget(&output, layout[1]);
 
         let cursor = self.input.get_cursor_position(layout[0]);
         frame.set_cursor_position(cursor);
@@ -70,6 +76,21 @@ impl App {
                     modifiers: KeyModifiers::CONTROL,
                     ..
                 } => self.exit = true,
+                KeyEvent {
+                    code: KeyCode::Enter,
+                    modifiers: KeyModifiers::NONE,
+                    ..
+                } => match self.input.item.clone() {
+                    Some(meta::Item::Def(def)) => {
+                        self.defs.push(def);
+                    }
+                    Some(meta::Item::Term(meta_term)) => {
+                        if let Ok(core_term) = meta_term.lower(&self.defs) {
+                            self.term = Some(core_term);
+                        }
+                    }
+                    None => (),
+                },
                 _ => {
                     let _ = self.input.update(&event);
                 }
