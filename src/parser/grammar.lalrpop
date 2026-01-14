@@ -1,5 +1,4 @@
-use crate::meta::{Program, Definition, Term};
-use crate::parser::ProgramElement;
+use crate::meta::{Program, Definition, Term, Item};
 use crate::parser::lexer::{LexerError, Token};
 
 grammar();
@@ -22,7 +21,7 @@ extern {
 }
 
 pub Term: Term = {
-	Abs,
+	Abstraction,
 	AppTerm,
 };
 
@@ -42,27 +41,27 @@ Application: Term = <lhs: AppTerm> <rhs: SimpleTerm> => Term::App {
 	rhs: Box::new(rhs)
 };
 
-Abs: Term = "lambda" <binders: "variable"+> "." <body: Term> => Term::Abs {
+Abstraction: Term = "lambda" <binders: "variable"+> "." <body: Term> => Term::Abs {
 	binders,
 	body: Box::new(body),
 };
 
-pub Program: Program = <elements: (<ProgramElement> ";")*> <last: ProgramElement?> => {
+pub Definition: Definition = "def" <metavar: "metavariable"> "=" <body: Term> => Definition { metavar, body };
+
+pub Item: Item = {
+	Definition => Item::Def(<>),
+	Term => Item::Term(<>),
+};
+
+pub Program: Program = <elements: (<Item> ";")*> <last: Item?> => {
 	let mut defs = Vec::new();
 	let mut terms = Vec::new();
-	for element in elements.into_iter().map(Some).chain(std::iter::once(last)).flatten() {
+	for element in elements.into_iter().chain(std::iter::once(last).flatten()) {
 		match element {
-			ProgramElement::Def(d) => defs.push(d),
-			ProgramElement::Term(t) => terms.push(t),
+			Item::Def(d) => defs.push(d),
+			Item::Term(t) => terms.push(t),
 		}
 	}
 
 	Program { defs, terms }
 };
-
-ProgramElement: ProgramElement = {
-	Def => ProgramElement::Def(<>),
-	Term => ProgramElement::Term(<>),
-};
-
-Def: Definition = "def" <metavar: "metavariable"> "=" <body: Term> => Definition { metavar, body };

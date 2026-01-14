@@ -5,6 +5,12 @@ pub struct Program {
 }
 
 #[derive(Debug, Clone)]
+pub enum Item {
+    Def(Definition),
+    Term(Term),
+}
+
+#[derive(Debug, Clone)]
 pub struct Definition {
     pub metavar: String,
     pub body: Term,
