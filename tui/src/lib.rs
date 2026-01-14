@@ -51,12 +51,20 @@ impl App {
             .constraints([Constraint::Length(3), Constraint::Fill(1)])
             .split(area);
 
-        let output = OutputArea::new(
-            std::iter::once(self.term.clone())
-                .flatten()
-                .map(|t| t.to_string())
-                .collect(),
-        );
+        let output = self.term.clone().map_or(vec![], |term| {
+            let nf = term.clone().normalize();
+            let stlc_typ = term.get_type();
+            [
+                Some(term.to_string()),
+                nf.map(|t| t.to_string()),
+                stlc_typ.map(|t| t.to_string()),
+            ]
+            .into_iter()
+            .flatten()
+            .collect()
+        });
+
+        let output = OutputArea::new(output);
 
         frame.render_widget(outer_block, frame.area());
         frame.render_widget(&self.input, layout[0]);
