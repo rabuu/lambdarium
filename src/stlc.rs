@@ -1,8 +1,6 @@
 use std::collections::{HashMap, HashSet};
-use std::fmt;
 
 use crate::core::{Term, Variable};
-use crate::print::Print;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Type {
@@ -38,12 +36,6 @@ pub struct TypeVariable {
     id: usize,
 }
 
-impl fmt::Display for TypeVariable {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "?{}", self.id)
-    }
-}
-
 impl Term {
     pub fn get_type(&self) -> Option<Type> {
         let mut collector = ConstraintCollector::default();
@@ -56,7 +48,7 @@ impl Term {
     }
 }
 
-#[derive(Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 struct Constraint {
     lhs: Type,
     rhs: Type,
@@ -66,17 +58,6 @@ impl Constraint {
     fn substitute(&mut self, var: &TypeVariable, with: Type) {
         self.lhs.substitute(var, with.clone());
         self.rhs.substitute(var, with);
-    }
-}
-
-impl fmt::Debug for Constraint {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{} = {}",
-            self.lhs.print_verbose(),
-            self.rhs.print_verbose()
-        )
     }
 }
 
