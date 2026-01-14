@@ -3,6 +3,7 @@ use std::io;
 use miette::Diagnostic;
 use thiserror::Error;
 
+use lambda_calculator::print::Print;
 use lambda_calculator::{LoweringError, ParserError, core};
 
 #[derive(Error, Diagnostic, Debug)]
@@ -15,7 +16,7 @@ pub enum AppError {
     #[diagnostic(transparent)]
     Lowering(#[from] LoweringError),
 
-    #[error("Term is not normalizable: {term}")]
+    #[error("Term is not normalizable: {}", term.print_pretty())]
     Normalization { term: core::Term },
 
     #[error(transparent)]

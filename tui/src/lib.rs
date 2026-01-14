@@ -6,6 +6,7 @@ use ratatui::prelude::*;
 use ratatui::symbols::border;
 use ratatui::widgets::Block;
 
+use lambda_calculator::print::Print;
 use lambda_calculator::{core, meta};
 
 use crate::input_area::InputArea;
@@ -55,11 +56,11 @@ impl App {
             let nf = term.clone().normalize();
             let stlc_typ = term.get_type();
             vec![
-                term.to_string(),
-                nf.map(|nf| format!("{nf} (normal form)"))
+                term.print_pretty(),
+                nf.map(|nf| format!("{} (normal form)", nf.print_pretty()))
                     .unwrap_or(String::from("No normal form")),
                 stlc_typ
-                    .map(|ty| format!("{ty} (STLC type)"))
+                    .map(|ty| format!("{} (STLC type)", ty.print_pretty()))
                     .unwrap_or(String::from("No type in STLC")),
             ]
         });

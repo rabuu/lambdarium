@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt;
 
 use crate::core::{Term, Variable};
+use crate::print::Print;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Type {
@@ -28,15 +29,6 @@ impl Type {
                 lhs.substitute(var, with.clone());
                 rhs.substitute(var, with);
             }
-        }
-    }
-}
-
-impl fmt::Display for Type {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Type::Var(type_variable) => type_variable.fmt(f),
-            Type::Fun { lhs, rhs } => write!(f, "({lhs} -> {rhs})"),
         }
     }
 }
@@ -79,7 +71,12 @@ impl Constraint {
 
 impl fmt::Debug for Constraint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} = {}", self.lhs, self.rhs)
+        write!(
+            f,
+            "{} = {}",
+            self.lhs.print_verbose(),
+            self.rhs.print_verbose()
+        )
     }
 }
 

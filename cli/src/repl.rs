@@ -8,7 +8,7 @@ use reedline::{
     Signal, StyledText, ValidationResult, Validator, default_emacs_keybindings,
 };
 
-use lambda_calculator::meta::Term;
+use lambda_calculator::{meta::Term, print::Print};
 
 use crate::error::AppError;
 
@@ -61,7 +61,7 @@ pub fn run() -> Result<(), AppError> {
             }
         };
 
-        println!("Term: {term}");
+        println!("Term: {}", term.print_pretty());
 
         let action = match TermAction::select("Action:").prompt() {
             Ok(action) => action,
@@ -75,7 +75,7 @@ pub fn run() -> Result<(), AppError> {
                     continue;
                 };
 
-                println!("{typ}");
+                println!("{}", typ.print_pretty());
             }
             TermAction::BetaContraction => {
                 let mut term = term;
@@ -91,7 +91,7 @@ pub fn run() -> Result<(), AppError> {
                     }
 
                     term = contracted;
-                    println!("{term}");
+                    println!("{}", term.print_pretty());
                 }
 
                 println!("The term is in β normal form.");
