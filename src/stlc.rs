@@ -33,7 +33,7 @@ impl Type {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct TypeVariable {
-    id: usize,
+    pub id: usize,
 }
 
 impl Term {
