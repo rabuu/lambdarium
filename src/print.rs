@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{core, meta, stlc};
+use crate::{core, stlc};
 
 /// Pretty print terms and types
 ///
