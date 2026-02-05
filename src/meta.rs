@@ -29,4 +29,9 @@ pub enum Term {
         body: Box<Term>,
     },
     Meta(String),
+    Subst {
+        term: Box<Term>,
+        var: String,
+        replacement: Box<Term>,
+    },
 }
