@@ -30,6 +30,13 @@ pub enum PrintStyle {
     Pretty,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+enum Precedence {
+    Abs,
+    App,
+    Atom,
+}
+
 impl Print for core::Term {
     fn print(&self, style: PrintStyle) -> String {
         match self {
@@ -37,6 +44,26 @@ impl Print for core::Term {
             core::Term::App(x) => x.print(style),
             core::Term::Abs(x) => x.print(style),
         }
+    }
+}
+
+impl core::Term {
+    fn print_pretty_prec(&self, prec: Precedence) -> String {
+        match self {
+            core::Term::Var(variable) => variable.print_pretty(),
+            core::Term::App(application) => application.print_pretty_prec(prec),
+            core::Term::Abs(abstraction) => abstraction.print_pretty_prec(prec),
+        }
+    }
+
+    fn strip_leading_binders(self) -> (core::Term, Vec<core::Variable>) {
+        let mut binders = Vec::new();
+        let mut t = self;
+        while let core::Term::Abs(abs) = t {
+            binders.push(abs.binder);
+            t = *abs.body;
+        }
+        (t, binders)
     }
 }
 
@@ -58,8 +85,23 @@ impl Print for core::Application {
     }
 
     fn print_pretty(&self) -> String {
-        // TODO: pretty impl
-        self.print_verbose()
+        self.print_pretty_prec(Precedence::Abs)
+    }
+}
+
+impl core::Application {
+    fn print_pretty_prec(&self, prec: Precedence) -> String {
+        let mut s = format!(
+            "{}{}",
+            self.lhs.print_pretty_prec(Precedence::App),
+            self.rhs.print_pretty_prec(Precedence::Atom)
+        );
+
+        if Precedence::App < prec {
+            s = format!("({s})");
+        }
+
+        s
     }
 }
 
@@ -71,8 +113,22 @@ impl Print for core::Abstraction {
     }
 
     fn print_pretty(&self) -> String {
-        // TODO: pretty impl
-        self.print_verbose()
+        self.print_pretty_prec(Precedence::Abs)
+    }
+}
+
+impl core::Abstraction {
+    fn print_pretty_prec(&self, prec: Precedence) -> String {
+        let (body, binders) = core::Term::Abs(self.clone()).strip_leading_binders();
+        let binders: String = binders.iter().map(Print::print_pretty).collect();
+
+        let mut s = format!("λ{binders}.{}", body.print_pretty_prec(Precedence::Abs));
+
+        if Precedence::Abs < prec {
+            s = format!("({s})");
+        }
+
+        s
     }
 }
 
