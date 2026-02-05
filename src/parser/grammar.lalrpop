@@ -17,6 +17,9 @@ extern {
 		"metavariable" => Token::MetaVariable(<String>),
 		"=" => Token::Equals,
 		";" => Token::Semicolon,
+	    "[" => Token::BracketOpen,
+	    "]" => Token::BracketClose,
+	    "->" => Token::Arrow,
 	}
 }
 
@@ -26,8 +29,13 @@ pub Term: Term = {
 };
 
 AppTerm: Term = {
-	SimpleTerm,
+	PostfixTerm,
 	Application,
+};
+
+PostfixTerm: Term = {
+	SimpleTerm,
+	Substitution,
 };
 
 SimpleTerm: Term = {
@@ -36,7 +44,7 @@ SimpleTerm: Term = {
 	"(" <Term> ")",
 };
 
-Application: Term = <lhs: AppTerm> <rhs: SimpleTerm> => Term::App {
+Application: Term = <lhs: AppTerm> <rhs: PostfixTerm> => Term::App {
 	lhs: Box::new(lhs),
 	rhs: Box::new(rhs)
 };
@@ -44,6 +52,12 @@ Application: Term = <lhs: AppTerm> <rhs: SimpleTerm> => Term::App {
 Abstraction: Term = "lambda" <binders: "variable"+> "." <body: Term> => Term::Abs {
 	binders,
 	body: Box::new(body),
+};
+
+Substitution: Term = <term: PostfixTerm> "[" <var: "variable"> "->" <replacement: Term> "]" => Term::Subst {
+	term: Box::new(term),
+	var,
+	replacement: Box::new(replacement),
 };
 
 pub Definition: Definition = "def" <metavar: "metavariable"> "=" <body: Term> => Definition { metavar, body };

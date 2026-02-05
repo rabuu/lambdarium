@@ -3,7 +3,7 @@ use std::collections::{HashMap, VecDeque};
 use miette::Diagnostic;
 use thiserror::Error;
 
-use crate::{core, meta};
+use crate::{core, meta, substitution::Subst};
 
 #[derive(Error, Diagnostic, Debug)]
 pub enum LoweringError {
@@ -43,6 +43,13 @@ impl meta::Term {
                 .get(&metavar)
                 .ok_or(LoweringError::UnresolvableMetaVariables)?
                 .clone(),
+            meta::Term::Subst {
+                term,
+                var,
+                replacement,
+            } => term
+                .lower_inner(defs)?
+                .subst(&core::Variable::from(var), &replacement.lower_inner(defs)?),
         })
     }
 }

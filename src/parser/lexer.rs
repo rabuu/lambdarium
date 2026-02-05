@@ -42,6 +42,15 @@ pub enum Token {
 
     #[token(";")]
     Semicolon,
+
+    #[token("[")]
+    BracketOpen,
+
+    #[token("]")]
+    BracketClose,
+
+    #[token("->")]
+    Arrow,
 }
 
 impl fmt::Display for Token {
@@ -56,6 +65,9 @@ impl fmt::Display for Token {
             Token::MetaVariable(var) => write!(f, r#"<{var}>"#),
             Token::Equals => write!(f, r#""=""#),
             Token::Semicolon => write!(f, r#"";""#),
+            Token::BracketOpen => write!(f, r#""[""#),
+            Token::BracketClose => write!(f, r#""]""#),
+            Token::Arrow => write!(f, r#""->""#),
         }
     }
 }
