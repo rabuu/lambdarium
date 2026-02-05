@@ -30,13 +30,6 @@ pub enum PrintStyle {
     Pretty,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-enum Precedence {
-    Abs,
-    App,
-    Atom,
-}
-
 impl Print for core::Term {
     fn print(&self, style: PrintStyle) -> String {
         match self {
@@ -48,7 +41,7 @@ impl Print for core::Term {
 }
 
 impl core::Term {
-    fn print_pretty_prec(&self, prec: Precedence) -> String {
+    fn print_pretty_prec(&self, prec: usize) -> String {
         match self {
             core::Term::Var(variable) => variable.print_pretty(),
             core::Term::App(application) => application.print_pretty_prec(prec),
@@ -85,19 +78,19 @@ impl Print for core::Application {
     }
 
     fn print_pretty(&self) -> String {
-        self.print_pretty_prec(Precedence::Abs)
+        self.print_pretty_prec(0)
     }
 }
 
 impl core::Application {
-    fn print_pretty_prec(&self, prec: Precedence) -> String {
+    fn print_pretty_prec(&self, prec: usize) -> String {
         let mut s = format!(
             "{}{}",
-            self.lhs.print_pretty_prec(Precedence::App),
-            self.rhs.print_pretty_prec(Precedence::Atom)
+            self.lhs.print_pretty_prec(1),
+            self.rhs.print_pretty_prec(2)
         );
 
-        if Precedence::App < prec {
+        if prec > 1 {
             s = format!("({s})");
         }
 
@@ -113,18 +106,18 @@ impl Print for core::Abstraction {
     }
 
     fn print_pretty(&self) -> String {
-        self.print_pretty_prec(Precedence::Abs)
+        self.print_pretty_prec(0)
     }
 }
 
 impl core::Abstraction {
-    fn print_pretty_prec(&self, prec: Precedence) -> String {
+    fn print_pretty_prec(&self, prec: usize) -> String {
         let (body, binders) = core::Term::Abs(self.clone()).strip_leading_binders();
         let binders: String = binders.iter().map(Print::print_pretty).collect();
 
-        let mut s = format!("λ{binders}.{}", body.print_pretty_prec(Precedence::Abs));
+        let mut s = format!("λ{binders}.{}", body.print_pretty_prec(0));
 
-        if Precedence::Abs < prec {
+        if prec > 0 {
             s = format!("({s})");
         }
 
@@ -138,8 +131,7 @@ impl Print for stlc::Type {
     }
 
     fn print_pretty(&self) -> String {
-        // TODO: pretty impl
-        self.print_verbose()
+        TypePrinter::default().print_pretty(self, 0)
     }
 }
 
@@ -154,21 +146,44 @@ struct TypePrinter {
 impl TypePrinter {
     fn print_verbose(&mut self, typ: &stlc::Type) -> String {
         match typ {
-            stlc::Type::Var(type_variable) => match self.map.get(type_variable) {
-                Some(name) => name.to_string(),
-                None => match self.next_name() {
-                    Some(next) => {
-                        self.map.insert(*type_variable, next);
-                        next.to_string()
-                    }
-                    None => format!("?{}", type_variable.id),
-                },
-            },
+            stlc::Type::Var(type_variable) => self.print_type_variable(type_variable),
             stlc::Type::Fun { lhs, rhs } => {
                 let lhs = self.print_verbose(lhs);
                 let rhs = self.print_verbose(rhs);
                 format!("({lhs} -> {rhs})",)
             }
+        }
+    }
+
+    fn print_pretty(&mut self, typ: &stlc::Type, prec: usize) -> String {
+        match typ {
+            stlc::Type::Var(type_variable) => self.print_type_variable(type_variable),
+            stlc::Type::Fun { lhs, rhs } => {
+                let mut s = format!(
+                    "{} -> {}",
+                    self.print_pretty(lhs, 1),
+                    self.print_pretty(rhs, 0)
+                );
+
+                if prec > 0 {
+                    s = format!("({s})");
+                }
+
+                s
+            }
+        }
+    }
+
+    fn print_type_variable(&mut self, var: &stlc::TypeVariable) -> String {
+        match self.map.get(var) {
+            Some(name) => name.to_string(),
+            None => match self.next_name() {
+                Some(next) => {
+                    self.map.insert(*var, next);
+                    next.to_string()
+                }
+                None => format!("?{}", var.id),
+            },
         }
     }
 
