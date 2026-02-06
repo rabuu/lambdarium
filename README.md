@@ -1,7 +1,7 @@
 # λ-calculator
 A calculator for the λ-calculus.
 
-This is a tool evaluate and play with pure λ-calculus terms.
+This is a tool to evaluate and play with pure λ-calculus terms.
 
 ## Syntax
 This project differentiates between two types of λ-terms:
@@ -14,7 +14,7 @@ def <id> = \x.x;
 \y.<id>(yy)
 ```
 
-This would get lowered to the pure λ-term `(λy.((\x.x)(y y)))`.
+This would get lowered to the pure λ-term `(λy.((λx.x)(y y)))`.
 
 ## Main Operations
 - β-reduction / evaluation
