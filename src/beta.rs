@@ -33,13 +33,13 @@ impl Application {
             return Some(abs.body.subst(&abs.binder, &self.rhs));
         }
 
-        if let Some(constracted) = self.lhs.clone().beta_contract() {
-            self.lhs = Box::new(constracted);
+        if let Some(contracted) = self.lhs.clone().beta_contract() {
+            self.lhs = Box::new(contracted);
             return Some(self.into());
         }
 
-        if let Some(constracted) = self.rhs.beta_contract() {
-            self.rhs = Box::new(constracted);
+        if let Some(contracted) = self.rhs.beta_contract() {
+            self.rhs = Box::new(contracted);
             return Some(self.into());
         }
 
