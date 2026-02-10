@@ -3,12 +3,13 @@ use ratatui::widgets::{Block, Paragraph};
 
 #[derive(Debug)]
 pub struct OutputArea {
+    pub title: String,
     pub lines: Vec<String>,
 }
 
 impl OutputArea {
-    pub fn new(lines: Vec<String>) -> Self {
-        Self { lines }
+    pub fn new(title: String, lines: Vec<String>) -> Self {
+        Self { title, lines }
     }
 }
 
@@ -17,7 +18,7 @@ impl Widget for &OutputArea {
     where
         Self: Sized,
     {
-        let block = Block::bordered().title("Output");
+        let block = Block::bordered().title(self.title.as_str());
 
         Paragraph::new(self.lines.join("\n"))
             .block(block)

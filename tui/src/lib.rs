@@ -41,16 +41,26 @@ impl App {
     fn draw(&self, frame: &mut Frame) {
         let title = Line::from(" λ-calculator ".bold());
         let help = Line::from(vec![" Quit ".into(), "<C-q> ".yellow().bold()]);
+
         let outer_block = Block::bordered()
             .title(title.centered())
             .title_bottom(help.centered())
             .border_set(border::THICK);
 
         let area = outer_block.inner(frame.area());
-        let layout = Layout::default()
+
+        let columns = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Fill(5), Constraint::Fill(1)])
+            .split(area);
+
+        let main_section = Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Length(3), Constraint::Fill(1)])
-            .split(area);
+            .split(columns[0]);
+
+        let input_section = main_section[0];
+        let output_section = main_section[1];
 
         let output = self.term.clone().map_or(vec![], |term| {
             let nf = term.clone().normalize();
@@ -65,13 +75,22 @@ impl App {
             ]
         });
 
-        let output = OutputArea::new(output);
+        let output = OutputArea::new("Output".to_owned(), output);
+
+        let definitions = OutputArea::new(
+            "Definitions".to_owned(),
+            self.context
+                .iter()
+                .map(|(metavar, body)| format!("def {metavar:?} = {body:?}"))
+                .collect(),
+        );
 
         frame.render_widget(outer_block, frame.area());
-        frame.render_widget(&self.input, layout[0]);
-        frame.render_widget(&output, layout[1]);
+        frame.render_widget(&self.input, input_section);
+        frame.render_widget(&output, output_section);
+        frame.render_widget(&definitions, columns[1]);
 
-        let cursor = self.input.get_cursor_position(layout[0]);
+        let cursor = self.input.get_cursor_position(input_section);
         frame.set_cursor_position(cursor);
     }
 
