@@ -1,5 +1,4 @@
 use crate::core::{Abstraction, Application, Term};
-use crate::substitution::Subst;
 
 const NORMALIZATION_LIMIT: usize = 1000;
 

@@ -3,7 +3,7 @@ use std::collections::{HashMap, VecDeque};
 use miette::Diagnostic;
 use thiserror::Error;
 
-use crate::{core, meta, substitution::Subst};
+use crate::{core, meta};
 
 #[derive(Error, Diagnostic, Debug)]
 pub enum LoweringError {

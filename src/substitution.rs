@@ -1,40 +1,36 @@
 use crate::core::{Abstraction, Application, Term, Variable};
 
-pub trait Subst: Sized {
-    fn subst(self, x: &Variable, to: &Term) -> Term {
+impl Term {
+    pub fn subst(self, x: &Variable, to: &Term) -> Term {
         let mut fresh = Fresh::new();
-        self.subst_impl(x, to, &mut fresh)
+        self.subst_inner(x, to, &mut fresh)
     }
 
-    fn subst_impl(self, x: &Variable, to: &Term, fresh: &mut Fresh) -> Term;
-}
-
-impl Subst for Term {
-    fn subst_impl(self, x: &Variable, to: &Term, fresh: &mut Fresh) -> Term {
+    fn subst_inner(self, x: &Variable, to: &Term, fresh: &mut Fresh) -> Term {
         match self {
-            Term::Var(variable) => variable.subst_impl(x, to, fresh),
-            Term::App(application) => application.subst_impl(x, to, fresh),
-            Term::Abs(abstraction) => abstraction.subst_impl(x, to, fresh),
+            Term::Var(variable) => variable.subst_inner(x, to, fresh),
+            Term::App(application) => application.subst_inner(x, to, fresh),
+            Term::Abs(abstraction) => abstraction.subst_inner(x, to, fresh),
         }
     }
 }
 
-impl Subst for Variable {
-    fn subst_impl(self, x: &Variable, to: &Term, _: &mut Fresh) -> Term {
+impl Variable {
+    fn subst_inner(self, x: &Variable, to: &Term, _: &mut Fresh) -> Term {
         if self == *x { to.clone() } else { self.into() }
     }
 }
 
-impl Subst for Application {
-    fn subst_impl(mut self, x: &Variable, to: &Term, fresh: &mut Fresh) -> Term {
-        self.lhs = Box::new(self.lhs.subst_impl(x, to, fresh));
-        self.rhs = Box::new(self.rhs.subst_impl(x, to, fresh));
+impl Application {
+    fn subst_inner(mut self, x: &Variable, to: &Term, fresh: &mut Fresh) -> Term {
+        self.lhs = Box::new(self.lhs.subst_inner(x, to, fresh));
+        self.rhs = Box::new(self.rhs.subst_inner(x, to, fresh));
         self.into()
     }
 }
 
-impl Subst for Abstraction {
-    fn subst_impl(mut self, x: &Variable, to: &Term, fresh: &mut Fresh) -> Term {
+impl Abstraction {
+    fn subst_inner(mut self, x: &Variable, to: &Term, fresh: &mut Fresh) -> Term {
         if self.binder == *x {
             return self.into();
         }
@@ -45,14 +41,14 @@ impl Subst for Abstraction {
                 binder: fresh_var.clone(),
                 body: Box::new(
                     self.body
-                        .subst_impl(&self.binder, &fresh_var.into(), fresh)
-                        .subst_impl(x, to, fresh),
+                        .subst_inner(&self.binder, &fresh_var.into(), fresh)
+                        .subst_inner(x, to, fresh),
                 ),
             }
             .into();
         }
 
-        self.body = Box::new(self.body.subst_impl(x, to, fresh));
+        self.body = Box::new(self.body.subst_inner(x, to, fresh));
         self.into()
     }
 }
