@@ -1,4 +1,6 @@
-use crate::meta::{Program, Definition, Term, Item};
+use nonempty::NonEmpty;
+
+use crate::meta::*;
 use crate::parser::lexer::{LexerError, Token};
 
 grammar();
@@ -24,58 +26,65 @@ extern {
 }
 
 pub Term: Term = {
-	Abstraction,
+	Abstraction => Term::Abs(<>),
 	AppTerm,
 };
 
 AppTerm: Term = {
 	PostfixTerm,
-	Application,
+	Application => Term::App(<>),
 };
 
 PostfixTerm: Term = {
 	SimpleTerm,
-	Substitution,
+	Substitution => Term::Subst(<>),
 };
 
 SimpleTerm: Term = {
-	"variable" => Term::Var(<>),
-	"metavariable" => Term::Meta(<>),
+	Variable => Term::Var(<>),
+	MetaVariable => Term::MetaVar(<>),
 	"(" <Term> ")",
 };
 
-Application: Term = <lhs: AppTerm> <rhs: PostfixTerm> => Term::App {
+MetaVariable: MetaVariable = "metavariable" => MetaVariable::from(<>);
+
+Variable: Variable = "variable" => Variable::from(<>);
+
+Application: Application = <lhs: AppTerm> <rhs: PostfixTerm> => Application {
 	lhs: Box::new(lhs),
 	rhs: Box::new(rhs)
 };
 
-Abstraction: Term = "lambda" <binders: "variable"+> "." <body: Term> => Term::Abs {
-	binders,
+Abstraction: Abstraction = "lambda" <binders: Variable+> "." <body: Term> => Abstraction {
+	binders: NonEmpty::from_vec(binders).expect("at least one binder by grammar"),
 	body: Box::new(body),
 };
 
-Substitution: Term = <term: PostfixTerm> "[" <var: "variable"> "->" <replacement: Term> "]" => Term::Subst {
-	term: Box::new(term),
+Substitution: Substitution = <body: PostfixTerm> "[" <var: Variable> "->" <replacement: Term> "]" => Substitution {
+	body: Box::new(body),
 	var,
 	replacement: Box::new(replacement),
 };
 
-pub Definition: Definition = "def" <metavar: "metavariable"> "=" <body: Term> => Definition { metavar, body };
+pub Definition: Definition = "def" <metavar: MetaVariable> "=" <body: Term> => Definition { metavar, body };
 
 pub Item: Item = {
 	Definition => Item::Def(<>),
 	Term => Item::Term(<>),
 };
 
-pub Program: Program = <elements: (<Item> ";")*> <last: Item?> => {
-	let mut defs = Vec::new();
+pub Program: Program = <items: (<Item> ";")*> <last: Item?> => {
+	let mut context = Context::default();
 	let mut terms = Vec::new();
-	for element in elements.into_iter().chain(std::iter::once(last).flatten()) {
-		match element {
-			Item::Def(d) => defs.push(d),
-			Item::Term(t) => terms.push(t),
+
+	for item in items.into_iter().chain([last].into_iter().flatten()) {
+		match item {
+			Item::Def(def) if !context.contains(&def.metavar) => context.add_definition(def),
+			// TODO: error handling
+			Item::Def(def) => panic!("Duplicate definition of metavariable <{}>", def.metavar.inner),
+			Item::Term(term) => terms.push(term),
 		}
 	}
 
-	Program { defs, terms }
+	Program { context, terms }
 };

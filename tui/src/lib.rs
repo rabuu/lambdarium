@@ -24,7 +24,7 @@ pub fn run_app() -> io::Result<()> {
 pub struct App {
     input: InputArea,
     exit: bool,
-    defs: Vec<meta::Definition>,
+    context: meta::Context,
     term: Option<core::Term>,
 }
 
@@ -91,10 +91,10 @@ impl App {
                     ..
                 } => match self.input.item.clone() {
                     Some(meta::Item::Def(def)) => {
-                        self.defs.push(def);
+                        self.context.add_definition(def);
                     }
                     Some(meta::Item::Term(meta_term)) => {
-                        if let Ok(core_term) = meta_term.lower(&self.defs) {
+                        if let Ok(core_term) = meta_term.lower(&self.context) {
                             self.term = Some(core_term);
                         }
                     }

@@ -8,7 +8,10 @@ use reedline::{
     Signal, StyledText, ValidationResult, Validator, default_emacs_keybindings,
 };
 
-use lambda_calculator::{meta::Term, print::Print};
+use lambda_calculator::{
+    meta::{Context, Term},
+    print::Print,
+};
 
 use crate::error::AppError;
 
@@ -53,7 +56,7 @@ pub fn run() -> Result<(), AppError> {
             }
         };
 
-        let term = match term.lower(&[]) {
+        let term = match term.lower(&Context::default()) {
             Ok(term) => term,
             Err(err) => {
                 render_report_with_source(err, line);

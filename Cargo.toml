@@ -24,3 +24,5 @@ thiserror = { workspace = true }
 miette = { workspace = true }
 lalrpop-util = { version = "0.22.2", features = ["lexer", "unicode"] }
 logos = "0.15.1"
+indexmap = "2.13.0"
+nonempty = "0.12.0"

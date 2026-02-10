@@ -44,7 +44,9 @@ impl meta::Program {
 impl core::Term {
     pub fn parse<S: AsRef<str>>(source: S) -> Result<Self, ParserError> {
         let meta_term = meta::Term::parse(source)?;
-        meta_term.lower(&[]).map_err(Into::into)
+        meta_term
+            .lower(&meta::Context::default())
+            .map_err(Into::into)
     }
 }
 
