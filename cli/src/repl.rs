@@ -8,7 +8,7 @@ use reedline::{
     Signal, StyledText, ValidationResult, Validator, default_emacs_keybindings,
 };
 
-use lambda_calculator::{lowering, meta, print::Print};
+use lambda_calculator::{Context, EvaluationStrategy, Print, meta};
 
 use crate::error::AppError;
 
@@ -34,7 +34,7 @@ pub fn run() -> Result<(), AppError> {
         .with_edit_mode(Box::new(edit_mode))
         .with_highlighter(Box::new(TermHighlighter));
 
-    let mut context = lowering::Context::default();
+    let mut context = Context::default();
 
     let mut first = Some(());
     loop {
@@ -93,7 +93,7 @@ pub fn run() -> Result<(), AppError> {
                 let mut term = term;
 
                 let mut first = Some(());
-                while let Some(contracted) = term.beta_contract() {
+                while let Some(contracted) = term.beta_contract(EvaluationStrategy::CallByValue) {
                     if first.take().is_none() {
                         let confirm_again = Confirm::new("Continue?").with_default(true).prompt();
                         match confirm_again {

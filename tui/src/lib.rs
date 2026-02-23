@@ -6,8 +6,7 @@ use ratatui::prelude::*;
 use ratatui::symbols::border;
 use ratatui::widgets::Block;
 
-use lambda_calculator::print::Print;
-use lambda_calculator::{core, lowering, meta};
+use lambda_calculator::{Context, Print, core, meta};
 
 use crate::input_area::InputArea;
 use crate::output_area::OutputArea;
@@ -24,7 +23,7 @@ pub fn run_app() -> io::Result<()> {
 pub struct App {
     input: InputArea,
     exit: bool,
-    context: lowering::Context,
+    context: Context,
     term: Option<core::Term>,
 }
 
