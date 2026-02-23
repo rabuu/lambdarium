@@ -93,7 +93,7 @@ pub fn run() -> Result<(), AppError> {
                 let mut term = term;
 
                 let mut first = Some(());
-                while let Some(contracted) = term.beta_contract(EvaluationStrategy::CallByValue) {
+                while let Some(contracted) = term.beta_contract(EvaluationStrategy::NormalOrder) {
                     if first.take().is_none() {
                         let confirm_again = Confirm::new("Continue?").with_default(true).prompt();
                         match confirm_again {
