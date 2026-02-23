@@ -854,7 +854,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "lambda-calculator"
+name = "lambdarium"
 version = "0.1.0"
 dependencies = [
  "indexmap",
@@ -867,14 +867,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "lambda-calculator-cli"
+name = "lambdarium-cli"
 version = "0.1.0"
 dependencies = [
  "clap",
  "inquire",
  "inquire-derive",
- "lambda-calculator",
- "lambda-calculator-tui",
+ "lambdarium",
+ "lambdarium-tui",
  "miette",
  "nu-ansi-term",
  "reedline",
@@ -882,12 +882,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "lambda-calculator-tui"
+name = "lambdarium-tui"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "crossterm",
- "lambda-calculator",
+ "lambdarium",
  "ratatui",
  "tui-input",
 ]

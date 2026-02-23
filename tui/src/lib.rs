@@ -6,7 +6,7 @@ use ratatui::prelude::*;
 use ratatui::symbols::border;
 use ratatui::widgets::Block;
 
-use lambda_calculator::{Context, Print, core, meta};
+use lambdarium::{Context, Print, core, meta};
 
 use crate::input_area::InputArea;
 use crate::output_area::OutputArea;
@@ -38,7 +38,7 @@ impl App {
     }
 
     fn draw(&self, frame: &mut Frame) {
-        let title = Line::from(" λ-calculator ".bold());
+        let title = Line::from(" λambdarium ".bold());
         let help = Line::from(vec![" Quit ".into(), "<C-q> ".yellow().bold()]);
 
         let outer_block = Block::bordered()

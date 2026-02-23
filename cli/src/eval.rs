@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 
-use lambda_calculator::{Print, meta};
+use lambdarium::{Print, meta};
 
 use crate::error::AppError;
 

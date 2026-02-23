@@ -4,7 +4,7 @@ use ratatui::widgets::{Block, Paragraph};
 use tui_input::Input;
 use tui_input::backend::crossterm::EventHandler;
 
-use lambda_calculator::meta;
+use lambdarium::meta;
 
 #[derive(Debug, Default)]
 pub struct InputArea {

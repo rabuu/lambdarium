@@ -12,7 +12,7 @@ crossterm = "0.29.0"
 anyhow = "1.0.100"
 
 [package]
-name = "lambda-calculator"
+name = "lambdarium"
 version = "0.1.0"
 edition = "2024"
 

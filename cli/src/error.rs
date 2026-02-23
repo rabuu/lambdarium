@@ -3,7 +3,7 @@ use std::io;
 use miette::Diagnostic;
 use thiserror::Error;
 
-use lambda_calculator::{LoweringError, ParserError, Print, core};
+use lambdarium::{LoweringError, ParserError, Print, core};
 
 #[derive(Error, Diagnostic, Debug)]
 pub enum AppError {

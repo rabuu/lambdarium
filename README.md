@@ -1,4 +1,4 @@
-# λ-calculator
+# λambdarium
 A calculator for the λ-calculus.
 
 This is a tool to evaluate and play with pure λ-calculus terms.

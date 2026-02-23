@@ -1,16 +1,16 @@
 [package]
-name = "lambda-calculator-cli"
+name = "lambdarium-cli"
 version = "0.1.0"
 edition = "2024"
-default-run = "lambda-calculator"
+default-run = "lambdarium"
 
 [[bin]]
-name = "lambda-calculator"
+name = "lambdarium"
 path = "src/main.rs"
 
 [dependencies]
-lambda-calculator = { path = ".." }
-lambda-calculator-tui = { path = "../tui" }
+lambdarium = { path = ".." }
+lambdarium-tui = { path = "../tui" }
 miette = { workspace = true }
 thiserror = { workspace = true }
 clap = { version = "4.5.53", features = ["derive"] }

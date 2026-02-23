@@ -8,11 +8,11 @@ use reedline::{
     Signal, StyledText, ValidationResult, Validator, default_emacs_keybindings,
 };
 
-use lambda_calculator::{Context, EvaluationStrategy, Print, meta};
+use lambdarium::{Context, EvaluationStrategy, Print, meta};
 
 use crate::error::AppError;
 
-const PROMPT: &str = "λ-calculator";
+const PROMPT: &str = "λambdarium";
 
 const COLOR_LAMBDA: Color = Color::Purple;
 const COLOR_PUNCTUATION: Color = Color::DarkGray;

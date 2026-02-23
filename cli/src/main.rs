@@ -33,7 +33,7 @@ fn main() -> miette::Result<()> {
     let args = CliArgs::parse();
 
     match args.cmd {
-        Command::Tui => lambda_calculator_tui::run_app().into_diagnostic()?,
+        Command::Tui => lambdarium_tui::run_app().into_diagnostic()?,
         Command::Repl => repl::run()?,
         Command::Eval { input_file } => eval::run(&input_file)?,
     }
