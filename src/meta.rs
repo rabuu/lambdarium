@@ -1,29 +1,9 @@
-use indexmap::IndexMap;
-use nonempty::NonEmpty;
+use crate::NonEmpty;
 
 #[derive(Debug, Clone)]
 pub struct Program {
-    pub context: Context,
+    pub definitions: Vec<Definition>,
     pub terms: Vec<Term>,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct Context {
-    defs: IndexMap<MetaVariable, Term>,
-}
-
-impl Context {
-    pub fn add_definition(&mut self, def: Definition) {
-        self.defs.insert(def.metavar, def.body);
-    }
-
-    pub fn contains(&self, metavar: &MetaVariable) -> bool {
-        self.defs.contains_key(metavar)
-    }
-
-    pub fn iter(&self) -> impl Iterator<Item = (&MetaVariable, &Term)> {
-        self.defs.iter()
-    }
 }
 
 #[derive(Debug, Clone)]

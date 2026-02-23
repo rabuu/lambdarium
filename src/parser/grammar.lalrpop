@@ -1,7 +1,6 @@
-use nonempty::NonEmpty;
-
 use crate::meta::*;
 use crate::parser::lexer::{LexerError, Token};
+use crate::NonEmpty;
 
 grammar();
 
@@ -74,17 +73,15 @@ pub Item: Item = {
 };
 
 pub Program: Program = <items: (<Item> ";")*> <last: Item?> => {
-	let mut context = Context::default();
+	let mut definitions = Vec::new();
 	let mut terms = Vec::new();
 
 	for item in items.into_iter().chain([last].into_iter().flatten()) {
 		match item {
-			Item::Def(def) if !context.contains(&def.metavar) => context.add_definition(def),
-			// TODO: error handling
-			Item::Def(def) => panic!("Duplicate definition of metavariable <{}>", def.metavar.inner),
+			Item::Def(def) => definitions.push(def),
 			Item::Term(term) => terms.push(term),
 		}
 	}
 
-	Program { context, terms }
+	Program { definitions, terms }
 };

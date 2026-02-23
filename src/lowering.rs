@@ -1,11 +1,10 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 
+use indexmap::IndexMap;
 use miette::Diagnostic;
 use thiserror::Error;
 
 use crate::{core, meta};
-
-type MetaBindings = HashMap<meta::MetaVariable, core::Term>;
 
 #[derive(Error, Diagnostic, Debug)]
 pub enum LoweringError {
@@ -13,35 +12,57 @@ pub enum LoweringError {
     UnresolvableMetaVariables,
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct Context {
+    defs: IndexMap<meta::MetaVariable, core::Term>,
+}
+
+impl Context {
+    pub fn add_definition(&mut self, def: meta::Definition) -> Result<(), LoweringError> {
+        let body = def.body.lower(self)?;
+        self.defs.insert(def.metavar, body);
+        Ok(())
+    }
+
+    pub fn get(&self, var: &meta::MetaVariable) -> Option<&core::Term> {
+        self.defs.get(var)
+    }
+
+    pub fn contains(&self, metavar: &meta::MetaVariable) -> bool {
+        self.defs.contains_key(metavar)
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (&meta::MetaVariable, &core::Term)> {
+        self.defs.iter()
+    }
+}
+
 impl meta::Program {
     pub fn lower(self) -> Result<Vec<core::Term>, LoweringError> {
-        let context = self.context.lower()?;
-        self.terms
-            .into_iter()
-            .map(|t| t.lower_inner(&context))
-            .collect()
+        let mut ctx = Context::default();
+        for def in self.definitions {
+            ctx.add_definition(def)?;
+        }
+
+        self.terms.into_iter().map(|t| t.lower(&ctx)).collect()
     }
 }
 
 impl meta::Term {
-    pub fn lower(self, ctx: &meta::Context) -> Result<core::Term, LoweringError> {
-        self.lower_inner(&ctx.lower()?)
-    }
-
-    fn lower_inner(self, meta_bindings: &MetaBindings) -> Result<core::Term, LoweringError> {
+    pub fn lower(self, ctx: &Context) -> Result<core::Term, LoweringError> {
         match self {
-            meta::Term::MetaVar(meta_variable) => meta_variable.lower_inner(meta_bindings),
-            meta::Term::Var(variable) => variable.lower_inner(meta_bindings),
-            meta::Term::App(application) => application.lower_inner(meta_bindings),
-            meta::Term::Abs(abstraction) => abstraction.lower_inner(meta_bindings),
-            meta::Term::Subst(substitution) => substitution.lower_inner(meta_bindings),
+            meta::Term::MetaVar(meta_variable) => meta_variable.lower(ctx),
+            meta::Term::Var(variable) => Ok(variable.lower()),
+            meta::Term::App(application) => application.lower(ctx),
+            meta::Term::Abs(abstraction) => abstraction.lower(ctx),
+            meta::Term::Subst(substitution) => substitution.lower(ctx),
         }
     }
 }
 
 impl meta::MetaVariable {
-    fn lower_inner(self, meta_bindings: &MetaBindings) -> Result<core::Term, LoweringError> {
-        Ok(meta_bindings
+    pub fn lower(self, ctx: &Context) -> Result<core::Term, LoweringError> {
+        Ok(ctx
             .get(&self)
             .ok_or(LoweringError::UnresolvableMetaVariables)?
             .clone())
@@ -49,57 +70,34 @@ impl meta::MetaVariable {
 }
 
 impl meta::Variable {
-    fn lower_inner(self, _: &MetaBindings) -> Result<core::Term, LoweringError> {
-        let var: core::Variable = self.into();
-        Ok(var.into())
+    pub fn lower(self) -> core::Term {
+        core::Term::Var(self.into())
     }
 }
 
 impl meta::Application {
-    fn lower_inner(self, meta_bindings: &MetaBindings) -> Result<core::Term, LoweringError> {
-        let Self { lhs, rhs } = self;
+    pub fn lower(self, ctx: &Context) -> Result<core::Term, LoweringError> {
         Ok(core::Application {
-            lhs: Box::new(lhs.lower_inner(meta_bindings)?),
-            rhs: Box::new(rhs.lower_inner(meta_bindings)?),
+            lhs: Box::new(self.lhs.lower(ctx)?),
+            rhs: Box::new(self.rhs.lower(ctx)?),
         }
         .into())
     }
 }
 
 impl meta::Abstraction {
-    fn lower_inner(self, meta_bindings: &MetaBindings) -> Result<core::Term, LoweringError> {
-        let Self { binders, body } = self;
-        Ok(curry(
-            VecDeque::from_iter(binders.into_iter()),
-            body.lower_inner(meta_bindings)?,
-        )
-        .into())
+    pub fn lower(self, ctx: &Context) -> Result<core::Term, LoweringError> {
+        let binders = VecDeque::from_iter(self.binders);
+        let body = self.body.lower(ctx)?;
+        Ok(curry(binders, body).into())
     }
 }
 
 impl meta::Substitution {
-    fn lower_inner(self, meta_bindings: &MetaBindings) -> Result<core::Term, LoweringError> {
-        let Self {
-            body,
-            var,
-            replacement,
-        } = self;
-        Ok(body
-            .lower_inner(meta_bindings)?
-            .subst(&var.into(), &replacement.lower_inner(meta_bindings)?))
-    }
-}
-
-impl meta::Context {
-    fn lower(&self) -> Result<MetaBindings, LoweringError> {
-        let mut map = HashMap::new();
-
-        for (metavar, body) in self.iter() {
-            let body = body.clone().lower_inner(&map)?;
-            map.insert(metavar.clone(), body);
-        }
-
-        Ok(map)
+    pub fn lower(self, ctx: &Context) -> Result<core::Term, LoweringError> {
+        let var: core::Variable = self.var.into();
+        let replacement = self.replacement.lower(ctx)?;
+        Ok(self.body.lower(ctx)?.subst(&var, &replacement))
     }
 }
 

@@ -7,7 +7,7 @@ use ratatui::symbols::border;
 use ratatui::widgets::Block;
 
 use lambda_calculator::print::Print;
-use lambda_calculator::{core, meta};
+use lambda_calculator::{core, lowering, meta};
 
 use crate::input_area::InputArea;
 use crate::output_area::OutputArea;
@@ -24,7 +24,7 @@ pub fn run_app() -> io::Result<()> {
 pub struct App {
     input: InputArea,
     exit: bool,
-    context: meta::Context,
+    context: lowering::Context,
     term: Option<core::Term>,
 }
 
@@ -110,7 +110,7 @@ impl App {
                     ..
                 } => match self.input.item.clone() {
                     Some(meta::Item::Def(def)) => {
-                        self.context.add_definition(def);
+                        let _ = self.context.add_definition(def);
                     }
                     Some(meta::Item::Term(meta_term)) => {
                         if let Ok(core_term) = meta_term.lower(&self.context) {
@@ -120,7 +120,7 @@ impl App {
                     None => (),
                 },
                 _ => {
-                    let _ = self.input.update(&event);
+                    self.input.update(&event);
                 }
             }
         }

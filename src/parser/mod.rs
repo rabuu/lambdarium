@@ -1,7 +1,6 @@
 use lalrpop_util::lalrpop_mod;
 
-use crate::core;
-use crate::meta;
+use crate::{core, lowering, meta};
 
 pub use error::ParserError;
 use lexer::Lexer;
@@ -45,7 +44,7 @@ impl core::Term {
     pub fn parse<S: AsRef<str>>(source: S) -> Result<Self, ParserError> {
         let meta_term = meta::Term::parse(source)?;
         meta_term
-            .lower(&meta::Context::default())
+            .lower(&lowering::Context::default())
             .map_err(Into::into)
     }
 }

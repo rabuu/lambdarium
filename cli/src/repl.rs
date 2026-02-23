@@ -8,10 +8,7 @@ use reedline::{
     Signal, StyledText, ValidationResult, Validator, default_emacs_keybindings,
 };
 
-use lambda_calculator::{
-    meta::{Context, Term},
-    print::Print,
-};
+use lambda_calculator::{lowering, meta, print::Print};
 
 use crate::error::AppError;
 
@@ -37,6 +34,8 @@ pub fn run() -> Result<(), AppError> {
         .with_edit_mode(Box::new(edit_mode))
         .with_highlighter(Box::new(TermHighlighter));
 
+    let mut context = lowering::Context::default();
+
     let mut first = Some(());
     loop {
         if first.take().is_none() {
@@ -48,15 +47,25 @@ pub fn run() -> Result<(), AppError> {
             Signal::CtrlC | Signal::CtrlD => return Ok(()),
         };
 
-        let term = match Term::parse(&line) {
-            Ok(term) => term,
+        let item = match meta::Item::parse(&line) {
+            Ok(item) => item,
             Err(err) => {
                 render_report_with_source(err, line);
                 continue;
             }
         };
 
-        let term = match term.lower(&Context::default()) {
+        let term = match item {
+            meta::Item::Def(def) => {
+                if let Err(err) = context.add_definition(def) {
+                    render_report_with_source(err, line);
+                }
+                continue;
+            }
+            meta::Item::Term(term) => term,
+        };
+
+        let term = match term.lower(&context) {
             Ok(term) => term,
             Err(err) => {
                 render_report_with_source(err, line);
