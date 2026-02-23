@@ -48,50 +48,49 @@ impl App {
 
         let area = outer_block.inner(frame.area());
 
-        let columns = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Fill(5), Constraint::Fill(1)])
-            .split(area);
+        let [left, middle, right] = Layout::horizontal([
+            Constraint::Fill(1),
+            Constraint::Fill(2),
+            Constraint::Fill(1),
+        ])
+        .areas(area);
 
-        let main_section = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Length(3), Constraint::Fill(1)])
-            .split(columns[0]);
+        let [input, interaction] =
+            Layout::vertical([Constraint::Length(3), Constraint::Fill(1)]).areas(middle);
 
-        let input_section = main_section[0];
-        let output_section = main_section[1];
-
-        let output = self.term.clone().map_or(vec![], |term| {
+        let term_info = self.term.clone().map_or(vec![], |term| {
             let nf = term.clone().normalize();
             let stlc_typ = term.get_type();
             vec![
                 term.print_pretty(),
-                nf.map(|nf| format!("{} (normal form)", nf.print_pretty()))
-                    .unwrap_or(String::from("No normal form")),
+                String::new(),
+                nf.map(|nf| format!("Normal form: {}", nf.print_pretty()))
+                    .unwrap_or(String::from("n/a")),
                 stlc_typ
-                    .map(|ty| format!("{} (STLC type)", ty.print_pretty()))
-                    .unwrap_or(String::from("No type in STLC")),
+                    .map(|ty| format!("STLC type:   {}", ty.print_pretty()))
+                    .unwrap_or(String::from("n/a")),
             ]
         });
+        let term_info = OutputArea::new("Term Info".to_owned(), term_info);
 
-        let output = OutputArea::new("Output".to_owned(), output);
+        let definitions = self
+            .context
+            .iter()
+            .map(|(metavar, body)| {
+                format!("def {} = {}", metavar.print_pretty(), body.print_pretty())
+            })
+            .collect();
+        let definitions = OutputArea::new("Definitions".to_owned(), definitions);
 
-        let definitions = OutputArea::new(
-            "Definitions".to_owned(),
-            self.context
-                .iter()
-                .map(|(metavar, body)| {
-                    format!("def {} = {}", metavar.print_pretty(), body.print_pretty())
-                })
-                .collect(),
-        );
+        let interaction_content = OutputArea::new("Interaction Area".to_owned(), vec![]);
 
         frame.render_widget(outer_block, frame.area());
-        frame.render_widget(&self.input, input_section);
-        frame.render_widget(&output, output_section);
-        frame.render_widget(&definitions, columns[1]);
+        frame.render_widget(&self.input, input);
+        frame.render_widget(&term_info, left);
+        frame.render_widget(&interaction_content, interaction);
+        frame.render_widget(&definitions, right);
 
-        let cursor = self.input.get_cursor_position(input_section);
+        let cursor = self.input.get_cursor_position(input);
         frame.set_cursor_position(cursor);
     }
 
