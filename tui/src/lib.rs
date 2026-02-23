@@ -81,7 +81,9 @@ impl App {
             "Definitions".to_owned(),
             self.context
                 .iter()
-                .map(|(metavar, body)| format!("def {metavar:?} = {body:?}"))
+                .map(|(metavar, body)| {
+                    format!("def {} = {}", metavar.print_pretty(), body.print_pretty())
+                })
                 .collect(),
         );
 

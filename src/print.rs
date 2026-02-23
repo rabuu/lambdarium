@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{core, stlc};
+use crate::{core, meta, stlc};
 
 /// Pretty print terms and types
 ///
@@ -122,6 +122,12 @@ impl core::Abstraction {
         }
 
         s
+    }
+}
+
+impl Print for meta::MetaVariable {
+    fn print(&self, _style: PrintStyle) -> String {
+        format!("<{}>", self.inner)
     }
 }
 
