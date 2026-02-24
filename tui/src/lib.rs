@@ -6,13 +6,14 @@ use ratatui::prelude::*;
 use ratatui::symbols::border;
 use ratatui::widgets::Block;
 
-use lambdarium::{Context, Print, core, meta};
+use lambdarium::{Context, core, meta};
 
-use crate::input_area::InputArea;
-use crate::output_area::OutputArea;
+use crate::widgets::DefinitionsWidget;
+use crate::widgets::InputWidget;
+use crate::widgets::InteractionWidget;
+use crate::widgets::TermInfoWidget;
 
-mod input_area;
-mod output_area;
+mod widgets;
 
 pub fn run_app() -> io::Result<()> {
     let mut app = App::default();
@@ -21,7 +22,7 @@ pub fn run_app() -> io::Result<()> {
 
 #[derive(Debug, Default)]
 pub struct App {
-    input: InputArea,
+    input: InputWidget,
     exit: bool,
     context: Context,
     term: Option<core::Term>,
@@ -55,42 +56,20 @@ impl App {
         ])
         .areas(area);
 
-        let [input, interaction] =
+        let [input_area, interaction_area] =
             Layout::vertical([Constraint::Length(3), Constraint::Fill(1)]).areas(middle);
 
-        let term_info = self.term.clone().map_or(vec![], |term| {
-            let nf = term.clone().normalize();
-            let stlc_typ = term.get_type();
-            vec![
-                term.print_pretty(),
-                String::new(),
-                nf.map(|nf| format!("Normal form: {}", nf.print_pretty()))
-                    .unwrap_or(String::from("n/a")),
-                stlc_typ
-                    .map(|ty| format!("STLC type:   {}", ty.print_pretty()))
-                    .unwrap_or(String::from("n/a")),
-            ]
-        });
-        let term_info = OutputArea::new("Term Info".to_owned(), term_info);
-
-        let definitions = self
-            .context
-            .iter()
-            .map(|(metavar, body)| {
-                format!("def {} = {}", metavar.print_pretty(), body.print_pretty())
-            })
-            .collect();
-        let definitions = OutputArea::new("Definitions".to_owned(), definitions);
-
-        let interaction_content = OutputArea::new("Interaction Area".to_owned(), vec![]);
+        let interaction = InteractionWidget::new(vec![], None);
+        let term_info = TermInfoWidget::new(self.term.clone());
+        let definitions = DefinitionsWidget::new(&self.context);
 
         frame.render_widget(outer_block, frame.area());
-        frame.render_widget(&self.input, input);
+        frame.render_widget(&self.input, input_area);
         frame.render_widget(&term_info, left);
-        frame.render_widget(&interaction_content, interaction);
+        frame.render_widget(&interaction, interaction_area);
         frame.render_widget(&definitions, right);
 
-        let cursor = self.input.get_cursor_position(input);
+        let cursor = self.input.get_cursor_position(input_area);
         frame.set_cursor_position(cursor);
     }
 

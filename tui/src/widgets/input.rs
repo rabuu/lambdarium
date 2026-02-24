@@ -7,12 +7,12 @@ use tui_input::backend::crossterm::EventHandler;
 use lambdarium::meta;
 
 #[derive(Debug, Default)]
-pub struct InputArea {
+pub struct InputWidget {
     input: Input,
     pub item: Option<meta::Item>,
 }
 
-impl InputArea {
+impl InputWidget {
     pub fn update(&mut self, mut event: &Event) {
         if let Event::Key(KeyEvent {
             code: KeyCode::Char('\\'),
@@ -43,7 +43,7 @@ impl InputArea {
     }
 }
 
-impl Widget for &InputArea {
+impl Widget for &InputWidget {
     fn render(self, area: Rect, buf: &mut Buffer)
     where
         Self: Sized,
