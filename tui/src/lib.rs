@@ -1,18 +1,18 @@
 use std::io;
 
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use ratatui::DefaultTerminal;
 use ratatui::prelude::*;
 use ratatui::symbols::border;
 use ratatui::widgets::Block;
 
-use lambdarium::{Context, meta};
+use lambdarium::Context;
 
 use crate::widgets::DefinitionsWidget;
 use crate::widgets::InputWidget;
 use crate::widgets::InteractionWidget;
 use crate::widgets::TermInfoWidget;
 
+mod event_handling;
 mod widgets;
 
 pub fn run_app() -> io::Result<()> {
@@ -20,10 +20,18 @@ pub fn run_app() -> io::Result<()> {
     ratatui::run(|terminal| app.run(terminal))
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub enum Mode {
+    #[default]
+    Input,
+    Interaction,
+    Exit,
+}
+
 #[derive(Debug, Default)]
 pub struct App {
     context: Context,
-    exit: bool,
+    mode: Mode,
 
     // stateful widgets
     input: InputWidget,
@@ -33,7 +41,7 @@ pub struct App {
 
 impl App {
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
-        while !self.exit {
+        while self.mode != Mode::Exit {
             terminal.draw(|frame| self.draw(frame))?;
             self.handle_events()?;
         }
@@ -70,42 +78,9 @@ impl App {
         frame.render_widget(&self.term_info, left);
         frame.render_widget(&definitions, right);
 
-        let cursor = self.input.get_cursor_position(input_area);
-        frame.set_cursor_position(cursor);
-    }
-
-    fn handle_events(&mut self) -> io::Result<()> {
-        let event = crossterm::event::read()?;
-
-        if let Event::Key(key) = event {
-            match key {
-                KeyEvent {
-                    code: KeyCode::Char('q'),
-                    modifiers: KeyModifiers::CONTROL,
-                    ..
-                } => self.exit = true,
-                KeyEvent {
-                    code: KeyCode::Enter,
-                    modifiers: KeyModifiers::NONE,
-                    ..
-                } => match self.input.item.clone() {
-                    Some(meta::Item::Def(def)) => {
-                        let _ = self.context.add_definition(def);
-                    }
-                    Some(meta::Item::Term(meta_term)) => {
-                        if let Ok(term) = meta_term.lower(&self.context) {
-                            self.term_info.set_term(term.clone());
-                            self.interaction.reset(term);
-                        }
-                    }
-                    None => (),
-                },
-                _ => {
-                    self.input.update(&event);
-                }
-            }
+        if self.mode == Mode::Input {
+            let cursor = self.input.get_cursor_position(input_area);
+            frame.set_cursor_position(cursor);
         }
-
-        Ok(())
     }
 }
