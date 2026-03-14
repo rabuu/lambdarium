@@ -10,8 +10,8 @@ This project differentiates between two types of λ-terms:
 
 This is an example meta-program:
 ```
-def <id> = \x.x;
-\y.<id>(yy)
+def I = \x.x;
+\y.I(yy)
 ```
 
 This would get lowered to the pure λ-term `(λy.((λx.x)(y y)))`.

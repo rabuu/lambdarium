@@ -27,15 +27,16 @@ pub enum Token {
     #[token(".")]
     Dot,
 
-    #[regex(r#""[a-zA-Z]+""#, |lex| strip_quotes(lex.slice()).to_owned())]
-    #[regex(r#"[a-zA-Z]"#, |lex| lex.slice().to_owned())]
+    #[regex(r#"<[a-z][a-z_]*>"#, |lex| strip_quotes(lex.slice()).to_owned())]
+    #[regex(r#"[a-z_]"#, |lex| lex.slice().to_owned())]
     Variable(String),
+
+    #[regex(r#"<[A-Z][A-Z_]*>"#, |lex| strip_quotes(lex.slice()).to_owned())]
+    #[regex(r#"[A-Z]"#, |lex| lex.slice().to_owned())]
+    MetaVariable(String),
 
     #[token("def")]
     Def,
-
-    #[regex(r#"<[a-zA-Z0-9_]+>"#, |lex| strip_quotes(lex.slice()).to_owned())]
-    MetaVariable(String),
 
     #[token("=")]
     Equals,
@@ -62,7 +63,7 @@ impl fmt::Display for Token {
             Token::Dot => write!(f, r#"".""#),
             Token::Variable(var) => write!(f, "{var}"),
             Token::Def => write!(f, r#""def""#),
-            Token::MetaVariable(var) => write!(f, r#"<{var}>"#),
+            Token::MetaVariable(var) => write!(f, r#"{var}"#),
             Token::Equals => write!(f, r#""=""#),
             Token::Semicolon => write!(f, r#"";""#),
             Token::BracketOpen => write!(f, r#""[""#),

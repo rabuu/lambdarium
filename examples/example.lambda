@@ -1,9 +1,7 @@
-def <s> = \xyz.xz(yz);
-def <k> = \xy.x;
-def <i> = \x.x;
+def S = \xyz.xz(yz);
+def K = \xy.x;
+def I = \x.x;
 
-<i> x;
-<k> x y;
-<s> (\x.x) (\y.y) (\z.z);
-
-(\x.xx)(\x.xx)
+I x;
+K x y;
+S (\x.x) (\y.y) (\z.z);
