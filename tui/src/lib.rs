@@ -6,7 +6,7 @@ use ratatui::prelude::*;
 use ratatui::symbols::border;
 use ratatui::widgets::Block;
 
-use lambdarium::{Context, core, meta};
+use lambdarium::{Context, meta};
 
 use crate::widgets::DefinitionsWidget;
 use crate::widgets::InputWidget;
@@ -22,10 +22,13 @@ pub fn run_app() -> io::Result<()> {
 
 #[derive(Debug, Default)]
 pub struct App {
-    input: InputWidget,
-    exit: bool,
     context: Context,
-    term: Option<core::Term>,
+    exit: bool,
+
+    // stateful widgets
+    input: InputWidget,
+    interaction: InteractionWidget,
+    term_info: TermInfoWidget,
 }
 
 impl App {
@@ -59,14 +62,12 @@ impl App {
         let [input_area, interaction_area] =
             Layout::vertical([Constraint::Length(3), Constraint::Fill(1)]).areas(middle);
 
-        let interaction = InteractionWidget::new(vec![], None);
-        let term_info = TermInfoWidget::new(self.term.clone());
         let definitions = DefinitionsWidget::new(&self.context);
 
         frame.render_widget(outer_block, frame.area());
         frame.render_widget(&self.input, input_area);
-        frame.render_widget(&term_info, left);
-        frame.render_widget(&interaction, interaction_area);
+        frame.render_widget(&self.interaction, interaction_area);
+        frame.render_widget(&self.term_info, left);
         frame.render_widget(&definitions, right);
 
         let cursor = self.input.get_cursor_position(input_area);
@@ -92,8 +93,9 @@ impl App {
                         let _ = self.context.add_definition(def);
                     }
                     Some(meta::Item::Term(meta_term)) => {
-                        if let Ok(core_term) = meta_term.lower(&self.context) {
-                            self.term = Some(core_term);
+                        if let Ok(term) = meta_term.lower(&self.context) {
+                            self.term_info.set_term(term.clone());
+                            self.interaction.reset(term);
                         }
                     }
                     None => (),

@@ -5,14 +5,18 @@ use lambdarium::{Print, core};
 
 use super::DEFAULT_WRAP;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct TermInfoWidget {
     term: Option<core::Term>,
 }
 
 impl TermInfoWidget {
-    pub fn new(term: Option<core::Term>) -> Self {
-        Self { term }
+    pub fn set_term(&mut self, term: core::Term) {
+        self.term = Some(term);
+    }
+
+    pub fn clear(&mut self) {
+        self.term = None;
     }
 
     fn render_inner(&self) -> Option<String> {

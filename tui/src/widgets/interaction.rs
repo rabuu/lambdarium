@@ -3,15 +3,22 @@ use ratatui::widgets::{Block, Paragraph};
 
 use lambdarium::{Print, core};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct InteractionWidget {
     terms: Vec<core::Term>,
     active: Option<usize>,
 }
 
 impl InteractionWidget {
-    pub fn new(terms: Vec<core::Term>, active: Option<usize>) -> Self {
-        InteractionWidget { terms, active }
+    pub fn clear(&mut self) {
+        self.terms.clear();
+        self.active = None;
+    }
+
+    pub fn reset(&mut self, term: core::Term) {
+        self.terms.clear();
+        self.terms.push(term);
+        self.active = Some(0);
     }
 }
 
