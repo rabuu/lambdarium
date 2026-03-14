@@ -65,7 +65,7 @@ impl Print for core::Variable {
         if self.inner.len() == 1 {
             self.inner.clone()
         } else {
-            format!(r#""{}""#, self.inner)
+            format!(r#"<{}>"#, self.inner)
         }
     }
 }
@@ -127,7 +127,11 @@ impl core::Abstraction {
 
 impl Print for meta::MetaVariable {
     fn print(&self, _style: PrintStyle) -> String {
-        format!("<{}>", self.inner)
+        if self.inner.len() == 1 {
+            self.inner.clone()
+        } else {
+            format!(r#"<{}>"#, self.inner)
+        }
     }
 }
 
